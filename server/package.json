@@ -1,0 +1,30 @@
+{
+  "name": "pevn_example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon src/app.js",
+    "lint": "eslint src/**/*.js"
+  },
+  "author": "Jay Huang",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "*",
+    "consolidate": "*",
+    "cors": "^2.8.5",
+    "dust": "*",
+    "dustjs-helpers": "*",
+    "dustjs-linkedin": "*",
+    "express": "*",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.19.4",
+    "pg": "*"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.6.1",
+    "@typescript-eslint/parser": "^2.6.1",
+    "eslint": "^6.6.0",
+    "eslint-plugin-vue": "^6.0.0"
+  }
+}

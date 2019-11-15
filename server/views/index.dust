@@ -1,0 +1,7 @@
+{>"layout" /}
+
+{<body}
+    {#users}
+        {username}
+    {/users}
+{/body}
