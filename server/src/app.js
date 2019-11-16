@@ -108,6 +108,14 @@ app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
                     userData.push(result.rows[0]);
                 })
 
+                client.query('SELECT * FROM Address where username = $1', [uname], (err, result) => {
+                    if (err) {
+                        return console.log(' error getting staff query', err);
+                    }
+
+                    userData.push(result.rows[0]);
+                })
+
                 client.query('SELECT * FROM Card where username = $1', [uname], (err, result) => {
                     if (err) {
                         return console.log(' error getting staff query', err);
