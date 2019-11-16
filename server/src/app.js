@@ -8,7 +8,7 @@ const   express     = require('express'),
 
 // For Connecting to PSQL
 const {Client} = require('pg');
-const conString = "postgres://pevn_admin:pevn1234@localhost/g_store";
+const conString = "postgres://pevn_admin:pevn1234@localhost/g_stores";
 const client = new Client({
     connectionString: conString,
 });
@@ -51,12 +51,21 @@ app.post('/register', (req, res) => {
         if (err) {
             return console.log('error running login query', err);
         }
+        console.log(req.body.username);
+
+        // add user
         client.query('INSERT INTO users(username, pword, isAdmin) VALUES ($1, $2, $3)', 
-                    [req.body.usernamse, req.body.pword, false]);
-                    
-        client.query('INSERT INTO users(username, customer_name, phone_number) VALUES ($1, $2, $3)', 
+                    [req.body.username, req.body.pword, false]);
+        
+        // add Card
+        client.query('INSERT INTO Card (username, billing_address, card_number, card_pin) VALUES ($1, $2, $3, $4)', 
+                    [req.body.username, req.body.billing_address, req.body.card_number, req.body.card_pin]);
+
+        // add customer
+        client.query('INSERT INTO customer(username, customer_name, phone_number) VALUES ($1, $2, $3)', 
                     [req.body.username, req.body.customer_name, req.body.phone_number]);
 
+        // add address
         client.query('INSERT INTO address(username, address, city, zipcode, state) VALUES ($1, $2, $3, $4, $5)', 
                     [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state]);
          
