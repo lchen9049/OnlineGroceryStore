@@ -150,6 +150,7 @@ import Profile from "./components/profile";
 import Product from "./components/product";
 import Cart from "./components/cart";
 import { userInfo } from './model/newApplication';
+import AuthenticationService from '@/services/AuthenticationService'
 
 export default {
   name: "app",
@@ -255,14 +256,14 @@ export default {
   methods: {
     async register () {
       const response = await AuthenticationService.register({
-        username: this.userInfo.userName,
-        pword: this.userInfo.passWord,
-        customerName: this.userInfo.firstName + this.userName.lastName, 
-        phone_number: this.userInfo.phoneNumber,
-        address: this.userInfo.primaryAddress.address,
-        city: this.userInfo.primaryAddress.city,
-        zipcode: this.userInfo.primaryAddress.zipCode,
-        state: this.userInfo.primaryAddress.state,
+        username: this.application.userInfo.userName,
+        pword: this.application.userInfo.passWord,
+        customerName: this.application.userInfo.firstName + this.application.userInfo.lastName, 
+        phone_number: this.application.userInfo.phoneNumber,
+        address: this.application.userInfo.primaryAddress.address,
+        city: this.application.userInfo.primaryAddress.city,
+        zipcode: this.application.userInfo.primaryAddress.zipCode,
+        state: this.application.userInfo.primaryAddress.state,
       })
       this.$router.go();
       console.log(response.data)
