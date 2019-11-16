@@ -135,12 +135,17 @@
             ></b-form-select>
           </div>
         </div>
-        <div class="row mt-4 ml-1"><h3>Payment</h3></div>
-        <hr>
+        <div class="row mt-4 ml-1">
+          <h3>Payment</h3>
+        </div>
+        <hr />
         <div class="row">
           <div class="col">
             <span>Card Number</span>
-            <b-form-input id="paymentCardNumber" v-model="application.userInfo.primaryPayment.cardNumber"></b-form-input>
+            <b-form-input
+              id="paymentCardNumber"
+              v-model="application.userInfo.primaryPayment.cardNumber"
+            ></b-form-input>
           </div>
           <div class="col">
             <span>Card Pin</span>
@@ -150,7 +155,10 @@
         <div class="row">
           <div class="col">
             <span>Billing Address</span>
-            <b-form-input id="billingAddress" v-model="application.userInfo.primaryPayment.address"></b-form-input>
+            <b-form-input
+              id="billingAddress"
+              v-model="application.userInfo.primaryPayment.billingAddress"
+            ></b-form-input>
           </div>
           <div class="col">
             <span>City</span>
@@ -560,7 +568,7 @@ export default {
           " " +
           this.application.userInfo.primaryPayment.state
       });
-      this.$router.go();
+
       console.log(response.data);
       this.$bvModal.hide("userLogin");
       this.authenticated = true;
@@ -568,7 +576,15 @@ export default {
       this.onCart = false;
       this.onProfile = true;
     },
-    login() {
+    async login() {
+      const response = await AuthenticationService.login({
+        uname: this.application.userInfo.userName,
+        pword: this.application.userInfo.passWord,
+        isAdmin: false
+      });
+
+      console.log(response.data);
+
       if (this.authenticated) {
         this.openProfile();
       } else {
