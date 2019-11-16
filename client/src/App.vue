@@ -40,7 +40,7 @@
             <b-navbar-nav class="ml-auto">
               <font-awesome-icon class="mr-5" size="2x" @click="openCart()" icon="shopping-cart" />
               <!--<b-button class="mr-2" @click="openCart()">Cart</b-button>-->
-              <font-awesome-icon class="mr-5" size="2x" @click="login()" icon="user-circle" />
+              <font-awesome-icon class="mr-5" size="2x" @click="authenticated ? openProfile() :$bvModal.show('userLogin');" icon="user-circle" />
               <!--<b-button class="mr-2" @click="login()">User</b-button>-->
             </b-navbar-nav>
           </b-collapse>
@@ -77,7 +77,7 @@
         <div class="row mt-3">
           <div class="col">
             <b-button @click="$bvModal.hide('userLogin')">Cancel</b-button>
-            <b-button @click="authenticate()">Login</b-button>
+            <b-button @click="login()">Login</b-button>
           </div>
           <div class="col">
             <span @click="needRegistration=true">Register</span>
@@ -196,6 +196,7 @@ import Product from "./components/product";
 import Cart from "./components/cart";
 import { userInfo } from "./model/newApplication";
 import AuthenticationService from "@/services/AuthenticationService";
+import axios from 'axios';
 
 export default {
   name: "app",
@@ -576,33 +577,23 @@ export default {
       this.onCart = false;
       this.onProfile = true;
     },
-<<<<<<< HEAD
-    async login() {
-      const response = await AuthenticationService.login({
-        uname: this.application.userInfo.userName,
-        pword: this.application.userInfo.passWord,
-        isAdmin: false
-      });
-
-      console.log(response.data);
-
-      if (this.authenticated) {
-        this.openProfile();
-      } else {
-        this.$bvModal.show("userLogin");
-      }
-=======
     login () {
-      axios.get(`http://localhost:3000/login/${this.userName}/${this.passWord}/${this.admin}`).then((response) =>{
+      axios.get(`http://localhost:3000/login/${this.application.userInfo.userName}/${this.application.userInfo.passWord}/${this.application.userInfo.admin}`).then((response) =>{
         console.log("hi");
         this.UserLoggedIn = response.data;
+        if(response.data.length == 0){
+
+        }
+        else{
+          this.authenticate = true;
+
+        }
       })
       .catch((error) => {
         console.log(error);
       })
       // this.$router.push("/");
-      console.log(response.data);
->>>>>>> 0496a8e7049825231ae26958a168f7cde8f4f9cf
+
     },
     authenticate() {
       //send userName & pass to backend to authenticate.
