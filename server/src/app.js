@@ -51,11 +51,15 @@ app.post('/register', (req, res) => {
         if (err) {
             return console.log('error running login query', err);
         }
-        client.query('INSERT INTO users(username, pword, isAdmin) VALUES ($1, $2, $3)', 
-                    [req.body.usernamse, req.body.pword, false]);
-                    
-        client.query('INSERT INTO users(username, customer_name, phone_number) VALUES ($1, $2, $3)', 
-                    [req.body.username, req.body.customer_name, req.body.phone_number]);
+        console.log(req.body.username);
+        client.query('INSERT INTO users(username, pword) VALUES ($1, $2)', 
+                    [req.body.username, req.body.pword]);
+        
+        client.query('INSERT INTO Card (billing_address, card_number, card_pin) VALUES ($1, $2, $3)', 
+                    ['hello', '1231231231221', '308']);
+
+        client.query('INSERT INTO customer(username, customer_name, phone_number, credit_card_id) VALUES ($1, $2, $3, $4)', 
+                    [req.body.username, req.body.customer_name, req.body.phone_number, 1]);
 
         client.query('INSERT INTO address(username, address, city, zipcode, state) VALUES ($1, $2, $3, $4, $5)', 
                     [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state]);
