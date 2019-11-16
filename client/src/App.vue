@@ -6,13 +6,6 @@
           <center>ONLINE GROCERY STORE</center>
         </h1>
       </div>
-
-      <div class="col-2 mt-2">
-        <font-awesome-icon class="mr-5" size="2x" @click="openCart()" icon="shopping-cart" />
-        <!--<b-button class="mr-2" @click="openCart()">Cart</b-button>-->
-        <font-awesome-icon class="mr-5" size="2x" @click="login()" icon="user-circle" />
-        <!--<b-button class="mr-2" @click="login()">User</b-button>-->
-      </div>
     </div>
     <div class="row mt-5 justify-content-md-center">
       <div class="col-10">
@@ -114,6 +107,32 @@
         </div>
         <div class="row">
           <div class="col">
+            <span>Phone Number</span>
+            <b-form-input id="phone" v-model="application.userInfo.phoneNumber"></b-form-input>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <span>Address</span>
+            <b-form-input id="lastName" v-model="application.userInfo.primaryAddress.address"></b-form-input>
+          </div>
+          <div class="col">
+            <span>City</span>
+            <b-form-input id="firstName" v-model="application.userInfo.primaryAddress.city"></b-form-input>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <span>Zip Code</span>
+            <b-form-input id="lastName" v-model="application.userInfo.primaryAddress.zipCode"></b-form-input>
+          </div>
+          <div class="col">
+            <span>State</span>
+            <b-form-input id="lastName" v-model="application.userInfo.primaryAddress.state"></b-form-input>
+          </div>
+        </div>
+        <div class="row mt-5">
+          <div class="col">
             <b-button @click="$bvModal.hide('userLogin')">Cancel</b-button>
             <b-button @click="register()">Register</b-button>
           </div>
@@ -130,6 +149,7 @@
 import Profile from "./components/profile";
 import Product from "./components/product";
 import Cart from "./components/cart";
+import { userInfo } from './model/newApplication';
 
 export default {
   name: "app",
@@ -150,8 +170,13 @@ export default {
           authenticated: false,
           firstName: null,
           lastName: null,
-          primaryAddress: null,
-          email: null,
+          phoneNumber: null,
+          primaryAddress: {
+            address: null,
+            city: null,
+            zipCode: null,
+            state: null
+          },
           primaryPayment: null,
           orders: [
             {
@@ -228,7 +253,20 @@ export default {
     };
   },
   methods: {
-    register() {},
+    async register () {
+      const response = await AuthenticationService.register({
+        username: this.userInfo.userName,
+        pword: this.userInfo.passWord,
+        customerName: this.userInfo.firstName + this.userName.lastName, 
+        phone_number: this.userInfo.phoneNumber,
+        address: this.userInfo.primaryAddress.address,
+        city: this.userInfo.primaryAddress.city,
+        zipcode: this.userInfo.primaryAddress.zipCode,
+        state: this.userInfo.primaryAddress.state,
+      })
+      this.$router.go();
+      console.log(response.data)
+    },
     login() {
       if (this.authenticated) {
         this.openProfile();
