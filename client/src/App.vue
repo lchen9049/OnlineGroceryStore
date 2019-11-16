@@ -576,6 +576,7 @@ export default {
       this.onCart = false;
       this.onProfile = true;
     },
+<<<<<<< HEAD
     async login() {
       const response = await AuthenticationService.login({
         uname: this.application.userInfo.userName,
@@ -590,6 +591,18 @@ export default {
       } else {
         this.$bvModal.show("userLogin");
       }
+=======
+    login () {
+      axios.get(`http://localhost:3000/login/${this.userName}/${this.passWord}/${this.admin}`).then((response) =>{
+        console.log("hi");
+        this.UserLoggedIn = response.data;
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      // this.$router.push("/");
+      console.log(response.data);
+>>>>>>> 0496a8e7049825231ae26958a168f7cde8f4f9cf
     },
     authenticate() {
       //send userName & pass to backend to authenticate.
