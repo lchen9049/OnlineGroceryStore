@@ -85,6 +85,7 @@ app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
     const isAdmin = req.params.isAdmin;
     console.log(isAdmin);
     client.query('SELECT * FROM users WHERE username = $1 AND pword = $2', [uname, pword], (err, result) => {
+        const userData = [];
         if (err) {
             return console.log('error running login query', err);
         }
@@ -96,7 +97,7 @@ app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
                         return console.log(' error getting staff query', err);
                     }
 
-                    res.send(result.rows);
+                    userData = (result.rows);
                 })
             } else { // customer
                 client.query('SELECT * FROM Customer where username = $1', [uname], (err, result) => {
@@ -104,8 +105,19 @@ app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
                         return console.log(' error getting staff query', err);
                     }
 
-                    res.send(result.rows);
+                    userData = (result.rows);
                 })
+
+                client.query('SELECT * FROM Card where username = $1', [uname], (err, result) => {
+                    if (err) {
+                        return console.log(' error getting staff query', err);
+                    }
+
+                    userData.concat(result.rows);
+                })
+
+                res.send(userData);
+                
             }
             
         }
