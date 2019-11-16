@@ -52,7 +52,7 @@ app.post('/register', (req, res) => {
             return console.log('error running login query', err);
         }
         client.query('INSERT INTO users(username, pword, isAdmin) VALUES ($1, $2, $3)', 
-                    [req.body.username, req.body.pword, false]);
+                    [req.body.usernamse, req.body.pword, false]);
                     
         client.query('INSERT INTO users(username, customer_name, phone_number) VALUES ($1, $2, $3)', 
                     [req.body.username, req.body.customer_name, req.body.phone_number]);
