@@ -258,7 +258,7 @@ export default {
       const response = await AuthenticationService.register({
         username: this.application.userInfo.userName,
         pword: this.application.userInfo.passWord,
-        customerName: this.application.userInfo.firstName + this.application.userInfo.lastName, 
+        customer_name: this.application.userInfo.firstName + this.application.userInfo.lastName, 
         phone_number: this.application.userInfo.phoneNumber,
         address: this.application.userInfo.primaryAddress.address,
         city: this.application.userInfo.primaryAddress.city,
