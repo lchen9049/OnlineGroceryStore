@@ -268,12 +268,16 @@ export default {
       this.$router.go();
       console.log(response.data)
     },
-    login() {
-      if (this.authenticated) {
-        this.openProfile();
-      } else {
-        this.$bvModal.show("userLogin");
-      }
+    login () {
+      axios.get(`http://localhost:3000/login/${this.userName}/${this.passWord}/${this.admin}`).then((response) =>{
+        console.log("hi");
+        this.UserLoggedIn = response.data;
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      // this.$router.push("/");
+      console.log(response.data);
     },
     authenticate() {
       //send userName & pass to backend to authenticate.
