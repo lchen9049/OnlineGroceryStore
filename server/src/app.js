@@ -44,10 +44,30 @@ app.get('/', function(req, res) {
 // ******************* REGISTER A NEW USER ***************** // 
 // insert data to psql when register route is called
 app.post('/register', (req, res) => {
-    client.query('INSERT INTO users(username, pword, isAdmin) VALUES ($1, $2)', [req.body.email, req.body.password]);
-       
-    res.redirect('/');
+    // need - username, password, isAdmin, 
+        // ->> isAdmin  = staff_name, s_address, salary, job title,
+        // ->> notAdmin = customer_name, phone_number, username, address, city, zipcode, state
+    client.query('SELECT * FROM users WHERE username = $1', [req.body.username], (err, result) => {
+        if (err) {
+            return console.log('error running login query', err);
+        }
+        client.query('INSERT INTO users(username, pword, isAdmin) VALUES ($1, $2, $3)', 
+                    [req.body.username, req.body.pword, false]);
+                    
+        client.query('INSERT INTO users(username, customer_name, phone_number) VALUES ($1, $2, $3)', 
+                    [req.body.username, req.body.customer_name, req.body.phone_number]);
+
+        client.query('INSERT INTO address(username, address, city, zipcode, state) VALUES ($1, $2, $3, $4, $5)', 
+                    [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state]);
+         
+    });
 });
+
+// ---- TRYING 
+// app.post('/reg/:uname/:pword', (req, res) => {
+//     client.query('INSERT INTO users(username, pword, isAdmin) VALUES ($1, $2, $3)', [req.params.uname, req.params.pword, true]);
+//     console.log('successful register');
+// }) 
 
 // ******************* lOGGING IN A USER ***************** // 
 app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
@@ -86,7 +106,8 @@ app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
 
 // ******************* Add a new address to an existing user ***************** // 
 app.post('/addAddress', (req, res) => {
-    client.query('INSERT INTO Address (username, address, city, zipcode, state) VALUES ($1, $2, $3, $4, $5)', [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state]);
+    client.query('INSERT INTO Address (username, address, city, zipcode, state) VALUES ($1, $2, $3, $4, $5)', 
+                [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state]);
     // do whatever we want to do, can send back data as well
 })
 
