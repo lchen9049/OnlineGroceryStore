@@ -23,10 +23,10 @@ insert into supplier (supplier_id, supplier_name, s_address) values ('4', 'Jacky
 
 
 /* INSERT INTO WAREHOUSE SAMPLE DATA */
-insert into warehouse (warehouse_id, supplier_id，w_address, storage_capacity) values ('Costco', '1', '1430 S ASHLAND AVE CHICAGO, IL 60608-2040', 800000);
-insert into warehouse (warehouse_id, supplier_id，w_address, storage_capacity) values ('Target', '2', '1850 S Archer AVE CHICAGO, IL 60608-2040', 900000);
-insert into warehouse (warehouse_id, supplier_id，w_address, storage_capacity) values ('MeatFarm', '3', '823 S California AVE CHICAGO, IL 60632-2123', 600000);
-insert into warehouse (warehouse_id, supplier_id，w_address, storage_capacity) values ('SodaInc', '4', '2312 S State AVE CHICAGO, IL 60231-2131', 700000);
+insert into warehouse (warehouse_id, supplier_id, w_address, storage_capacity) values ('Costco', '1', '1430 S ASHLAND AVE CHICAGO, IL 60608-2040', 800000);
+insert into warehouse (warehouse_id, supplier_id, w_address, storage_capacity) values ('Target', '2', '1850 S Archer AVE CHICAGO, IL 60608-2040', 900000);
+insert into warehouse (warehouse_id, supplier_id, w_address, storage_capacity) values ('MeatFarm', '3', '823 S California AVE CHICAGO, IL 60632-2123', 600000);
+insert into warehouse (warehouse_id, supplier_id, w_address, storage_capacity) values ('SodaInc', '4', '2312 S State AVE CHICAGO, IL 60231-2131', 700000);
 
 
 /* INSERT INTO STOCK SAMPLE DATA */
