@@ -90,7 +90,7 @@ app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
             return console.log('error running login query', err);
         }
 
-        if (result.rows.length > 0) {
+        if (result.rows.length > 0) {  // user exists
             if (isAdmin == 'true') {
                 client.query('SELECT * FROM Staff where username = $1', [uname], (err, result) => {
                     if (err) {
@@ -128,6 +128,8 @@ app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
                 
             }
             
+        } else {
+            res.send(false);
         }
     });
     
@@ -157,6 +159,17 @@ app.put('/updateQuantity', (req, res) => {
 app.post('/addOrder', (req, res) => {
     client.query('INSERT INTO Order (username, product_id, order_status) VALUES ($1, $2, $3)', [req.body.username, req.body.product_id, req.body.order_status]);
 
+})
+
+// ****************  Get all products ***************//
+app.get('/getAllProducts', (req, res) => {
+    client.query('SELECT * FROM Product', (err, result) => {
+        if (err) {
+            return console.log('error retreiving product query', err);
+        }
+
+        res.send(result.rows);
+    })
 })
 
 
