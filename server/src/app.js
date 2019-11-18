@@ -51,11 +51,17 @@ app.post('/register', (req, res) => {
         if (err) {
             return console.log('error running login query', err);
         }
-        console.log(req.body.username);
-
+        if (result.rows.length > 0) {
+            res.send(false);
+            return console.log('USER ALREADY EXIST');
+        }
         // add user
         client.query('INSERT INTO users(username, pword, isAdmin) VALUES ($1, $2, $3)', 
-                    [req.body.username, req.body.pword, false]);
+                    [req.body.username, req.body.pword, false], (err, result) => {
+                        if (err) {
+                            
+                        }
+                    });
         
         // add Card
         client.query('INSERT INTO Card (username, billing_address, card_number, card_pin) VALUES ($1, $2, $3, $4)', 
@@ -68,6 +74,9 @@ app.post('/register', (req, res) => {
         // add address
         client.query('INSERT INTO address(username, address, city, zipcode, state) VALUES ($1, $2, $3, $4, $5)', 
                     [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state]);
+        
+        res.send(true);
+        return console.log("USER REGISTER SUCCESSFULLY");
          
     });
 });
@@ -147,6 +156,19 @@ app.post('/addAddress', (req, res) => {
 app.post('/addPayment', (req, res) => {
     client.query('INSERT INTO Card (billing_address, card_number, card_pin) VALUES ($1, $2, $3)', [req.body.billing_address, req.body.card_number, req.body.card_pin]);
     // do whatever
+})
+
+
+// ****************** Add Product ******************** //
+app.post('/addProduct', (req, res) => {
+    client.query('INSERT INTO Product (product_name, product_price, category, p_weight, p_image) VALUES ($1, $2, $3, $4, $5, $6)', 
+                [req.body.product_name, req.body.product_price, req.body.category, req.body.p_weight, req.body.p_image], (err, result) => {
+                    if (err) {
+                        res.send('FAILED TO ADD PRODUCT!');
+                    }
+                    res.send("SUCCESSFULLY ADDED TO PRODUCT TABLE");
+                });
+    
 })
 
 // *******************  Update quantity of a Product ***************** // 
