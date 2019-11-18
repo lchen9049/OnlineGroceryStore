@@ -12,42 +12,22 @@
         <b-navbar toggleable="sm" type="light" variant="light">
           <b-collapse id="nav-collapse" is-nav>
             <b-navbar-nav>
-              <b-nav-item-dropdown text="Category 1">
-                <b-dropdown-item @click="openProduct('Sample1')">Sample1</b-dropdown-item>
-                <b-dropdown-item @click="openProduct('Sample2')">Sample2</b-dropdown-item>
-                <b-dropdown-item @click="openProduct('Sample3')">Sample3</b-dropdown-item>
-                <b-dropdown-item @click="openProduct('Sample4')">Sample4</b-dropdown-item>
-              </b-nav-item-dropdown>
-              <b-nav-item-dropdown text="Category 2">
-                <b-dropdown-item href="#">Sample 1</b-dropdown-item>
-                <b-dropdown-item href="#">Sample 2</b-dropdown-item>
-                <b-dropdown-item href="#">Sample 3</b-dropdown-item>
-                <b-dropdown-item href="#">Sample 4</b-dropdown-item>
-              </b-nav-item-dropdown>
-              <b-nav-item-dropdown text="Category 3">
-                <b-dropdown-item href="#">Sample 1</b-dropdown-item>
-                <b-dropdown-item href="#">Sample 2</b-dropdown-item>
-                <b-dropdown-item href="#">Sample 3</b-dropdown-item>
-                <b-dropdown-item href="#">Sample 4</b-dropdown-item>
-              </b-nav-item-dropdown>
-              <b-nav-item-dropdown text="Category 4">
-                <b-dropdown-item href="#">Sample 1</b-dropdown-item>
-                <b-dropdown-item href="#">Sample 2</b-dropdown-item>
-                <b-dropdown-item href="#">Sample 3</b-dropdown-item>
-                <b-dropdown-item href="#">Sample 4</b-dropdown-item>
-              </b-nav-item-dropdown>
+              <b-nav-item class="ml-5" @click="application.productType='fruit'">Fruits</b-nav-item>
+              <b-nav-item class="ml-5" @click="application.productType='meat'">Meat</b-nav-item>
+              <b-nav-item class="ml-5" @click="application.productType='drink'">Drink</b-nav-item>
+              <b-nav-item></b-nav-item>
             </b-navbar-nav>
             <b-navbar-nav class="ml-auto">
-              <font-awesome-icon class="mr-5" size="2x" @click="openCart()" icon="shopping-cart" />
-              <!--<b-button class="mr-2" @click="openCart()">Cart</b-button>-->
-              <font-awesome-icon class="mr-5" size="2x" @click="authenticated ? openProfile() :$bvModal.show('userLogin');" icon="user-circle" />
-              <!--<b-button class="mr-2" @click="login()">User</b-button>-->
+              <font-awesome-icon size="2x" class="mr-2" @click="openCart()" icon="shopping-cart" />
+              <div class="mr-5 mt-1">{{application.cart.length}}</div>
+              <font-awesome-icon class="mr-1" size="2x" @click="login()" icon="user-circle" />
+              <div class="mt-1" v-if="authenticated">{{application.userInfo.firstName}} {{application.userInfo.lastName}}</div>
+              <div class="mt-1" v-else>Not Logged In</div>
             </b-navbar-nav>
           </b-collapse>
         </b-navbar>
       </div>
     </div>
-
     <div class="row mt-5 justify-content-md-center">
       <div class="col-9" v-if="onProduct">
         <Product :application.sync="application" :isAdmin="isAdmin"></Product>
@@ -74,10 +54,16 @@
             <b-form-input id="passWord" v-model="application.userInfo.passWord"></b-form-input>
           </div>
         </div>
+        <div class="row mt-2" v-if="error">
+          <div class="col"></div>
+          <div class="col">
+            <div class="text-danger">Invalid Input</div>
+          </div>
+        </div>
         <div class="row mt-3">
           <div class="col">
             <b-button @click="$bvModal.hide('userLogin')">Cancel</b-button>
-            <b-button @click="login()">Login</b-button>
+            <b-button @click="authenticate()">Login</b-button>
           </div>
           <div class="col">
             <span @click="needRegistration=true">Register</span>
@@ -196,7 +182,7 @@ import Product from "./components/product";
 import Cart from "./components/cart";
 import { userInfo } from "./model/newApplication";
 import AuthenticationService from "@/services/AuthenticationService";
-import axios from 'axios';
+import axios from "axios";
 
 export default {
   name: "app",
@@ -209,6 +195,7 @@ export default {
       onCart: false,
       onProfile: false,
       isAdmin: false,
+      error: false,
       application: {
         userInfo: {
           admin: false,
@@ -218,20 +205,8 @@ export default {
           firstName: null,
           lastName: null,
           phoneNumber: null,
-          primaryAddress: {
-            address: null,
-            city: null,
-            zipCode: null,
-            state: null
-          },
-          primaryPayment: {
-            cardNumber: null,
-            cardPin: null,
-            billingAddress: null,
-            city: null,
-            zipCode: null,
-            state: null
-          },
+          primaryAddress: [],
+          primaryPayment: [],
           orders: [
             {
               id: 1,
@@ -267,43 +242,15 @@ export default {
           salary: null,
           address: null
         },
-        productType: "recommended",
-        products: [
-          {
-            id: 1,
-            name: "banana",
-            category: "Sample1",
-            price: 12,
-            quantityLeft: 100,
-            amountToBuy: 0
-          },
-          {
-            id: 2,
-            name: "apple",
-            category: "Sample1",
-            price: 52,
-            quantityLeft: 100,
-            amountToBuy: 0
-          },
-          {
-            id: 3,
-            name: "orange",
-            category: "Sample1",
-            price: 22,
-            quantityLeft: 100,
-            amountToBuy: 0
-          },
-          {
-            id: 4,
-            name: "grape",
-            category: "Sample1",
-            price: 32,
-            quantityLeft: 100,
-            amountToBuy: 0
-          }
-        ],
+        productType: "fruit",
+        products: {
+          fruits: [],
+          meats: [],
+          drinks: []
+        },
         cart: []
       },
+      currentProds:[],
       state: [
         { value: null, text: "Please select state" },
         {
@@ -551,7 +498,7 @@ export default {
         username: this.application.userInfo.userName,
         pword: this.application.userInfo.passWord,
         customer_name:
-          this.application.userInfo.firstName +
+          this.application.userInfo.firstName + ' ' +
           this.application.userInfo.lastName,
         phone_number: this.application.userInfo.phoneNumber,
         address: this.application.userInfo.primaryAddress.address,
@@ -577,29 +524,42 @@ export default {
       this.onCart = false;
       this.onProfile = true;
     },
-    login () {
-      axios.get(`http://localhost:3000/login/${this.application.userInfo.userName}/${this.application.userInfo.passWord}/${this.application.userInfo.admin}`).then((response) =>{
-        console.log("hi");
-        this.UserLoggedIn = response.data;
-        if(response.data.length == 0){
-
-        }
-        else{
-          this.authenticate = true;
-
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      })
+    login() {
+      if (this.authenticated) {
+        this.openProfile();
+      } else {
+        this.$bvModal.show("userLogin");
+      }
       // this.$router.push("/");
-
     },
     authenticate() {
-      //send userName & pass to backend to authenticate.
-      //if false, show error message.
-      //else open profile
-      this.openProfile();
+      axios
+        .get(
+          `http://localhost:3000/login/${this.application.userInfo.userName}/${this.application.userInfo.passWord}/${this.application.userInfo.admin}`
+        )
+        .then(response => {
+          console.log(response.data);
+          this.UserLoggedIn = response.data;
+          if (!response.data) {
+            this.error = true;
+          } else {
+            
+            let name = response.data[0].customer_name.split(' ');
+
+            this.application.userInfo.address.push({value: {address: response.data[1].address, city:response.data[1].city, zipcode: response.data[1].zipcode, state:response.data[1].state }, text: response.data[1].address + ' ' + response.data[1].city + ' ' + response.data[1].zipcode + ' ' + response.data[1].state});
+            this.application.userInfo.creditCards.push({value: {cardNumber:response.data[2].card_number, cardPin:response.data[2].card_pin, billingAddres:response.data[2].billing_address }, text: response.data[2].card_number});
+            this.application.userInfo.primaryAddress = this.application.userInfo.address[0].value;
+            this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[0].value;
+            this.application.userInfo.firstName = name[0];
+            this.application.userInfo.lastName = name[1];
+            console.log(this.application.userInfo)
+            this.authenticated = true;
+            this.$bvModal.hide("userLogin");
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
     openCart() {
       this.onProduct = false;
@@ -618,6 +578,47 @@ export default {
       this.onCart = false;
       this.onProfile = false;
     }
+  },
+  mounted() {
+    axios
+      .get("http://localhost:3000/getAllProducts")
+      .then(response => {
+        console.log(response.data);
+
+        let p = response.data;
+
+        p.forEach(prod => {
+          if (prod.category == "fruit") {
+            this.application.products.fruits.push({
+              id: prod.product_id,
+              name: prod.product_name,
+              price: prod.product_price,
+              amountToBuy: 0,
+              image: prod.p_image
+            });
+          } else if (prod.category == "meat") {
+            this.application.products.meats.push({
+              id: prod.product_id,
+              name: prod.product_name,
+              price: prod.product_price,
+              amountToBuy: 0,
+              image: prod.p_image
+            });
+          } else {
+            this.application.products.drinks.push({
+              id: prod.product_id,
+              name: prod.product_name,
+              price: prod.product_price,
+              amountToBuy: 0,
+              image: prod.p_image
+            });
+          }
+        });
+
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 };
 </script>

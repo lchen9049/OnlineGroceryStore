@@ -65,11 +65,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="product in application.products" :key="product.id">
+          <tr v-for="product in currentProds" :key="product.id">
             <td>
               <b-img
                 v-bind="mainProps"
-                src="https://picsum.photos/250/250/?image=54"
+                :src="product.image"
                 fluid
                 alt="Responsive image"
               ></b-img>
@@ -79,7 +79,7 @@
             <td>${{product.price}}</td>
             <td scope="row">
               <b-form-input class="col-4" v-model="product.amountToBuy"></b-form-input>
-              <span>Amount left: {{product.quantityLeft}}</span>
+              <span>Amount left:</span>
             </td>
             <td>
               <b-button @click="addProduct(product)">Add Product</b-button>
@@ -161,6 +161,17 @@ export default {
           prod.added = parseInt(prod.added) + parseInt(amount);
         prod.quantityLeft = prod.quantityLeft - parseInt(amount);
       });
+    }
+  },
+  computed: {
+    currentProds: function() {
+      if (this.application.productType == "fruit") {
+        return this.application.products.fruits;
+      } else if (this.application.productType == "meat") {
+        return this.application.products.meats;
+      } else {
+        return this.application.products.drinks;
+      }
     }
   }
 };

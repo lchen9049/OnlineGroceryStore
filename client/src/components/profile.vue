@@ -14,12 +14,11 @@
         <b-form-input :disabled="true" v-model="application.userInfo.userName" />
       </div>
     </div>
-
     <div class="row mt-4">
       <div class="col-8">
         Address
         <b-form-select
-          :options="application.address"
+          :options="application.userInfo.address"
           :disabled="!edit"
           v-model="application.userInfo.primaryAddress"
         />
@@ -38,7 +37,7 @@
       <div class="col-8">
         Payment
         <b-form-select
-          :options="application.creditCards"
+          :options="application.userInfo.creditCards"
           :disabled="!edit"
           v-model="application.userInfo.primaryPayment"
         />
@@ -90,7 +89,7 @@
         <div class="row mt-3">
           <div class="col">
             <b-button @click="$bvModal.hide('addInfo')">Cancel</b-button>
-            <b-button @click="authenticate()">Add</b-button>
+            <b-button @click="addNewAddress()">Add</b-button>
           </div>
         </div>
       </div>
@@ -134,7 +133,7 @@
         <div class="row mt-3">
           <div class="col">
             <b-button @click="$bvModal.hide('addInfo')">Cancel</b-button>
-            <b-button @click="authenticate()">Add</b-button>
+            <b-button @click="addNewPayment()">Add</b-button>
           </div>
         </div>
       </div>
@@ -190,7 +189,15 @@ export default {
     };
   },
   methods: {
-    updateInformation() {}
+    updateInformation() {
+
+    },
+    addNewPayment() {
+
+    },
+    addNewAddress() {
+
+    }
   },
   watch: {
     application: {
