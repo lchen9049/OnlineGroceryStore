@@ -185,7 +185,7 @@ app.post('/addOrder', (req, res) => {
 
 // ****************  Get all products ***************//
 app.get('/getAllProducts', (req, res) => {
-    client.query('SELECT * FROM Product', (err, result) => {
+    client.query('SELECT * FROM Product Natural Join Stocks', (err, result) => {
         if (err) {
             return console.log('error retreiving product query', err);
         }
