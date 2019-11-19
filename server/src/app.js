@@ -242,7 +242,7 @@ app.delete('/deleteProduct/:id', (req, res) => {
 
 // *******************  Update quantity of a Product ***************** // 
 app.put('/updateQuantity', (req, res) => {
-    client.query('UPDATE Stocks SET quantity = $1 WHERE warehouse_id = $2 AND product_id = $3', [req.body.product_quantity, req.body.warehouse_id, req.body.product_id], (err, result) => {
+    client.query('UPDATE Stocks SET quantity = $1 WHERE product_id = $2', [req.body.product_quantity, req.body.product_id], (err, result) => {
         if (err) {
             res.send(false);
             return console.log('Update Quantity FAILED');
@@ -251,6 +251,12 @@ app.put('/updateQuantity', (req, res) => {
         return console.log('Update Quantity Success');
     });
     // do whatever if needed
+})
+
+
+// ****************** Update Product Pricing ********************* //
+app.put('/updateProduct', (req, res) => {
+
 })
 
 // *******************  Add Order and Contains ***************** // 
