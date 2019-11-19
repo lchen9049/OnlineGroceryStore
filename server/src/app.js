@@ -63,7 +63,7 @@ app.post('/register', (req, res) => {
         client.query('INSERT INTO users(username, pword, isAdmin) VALUES ($1, $2, $3)', 
                     [req.body.username, req.body.pword, false], (err, result) => {
                         if (err) {
-                            
+                            res.send(false);
                         }
                     });
         
@@ -207,7 +207,6 @@ app.post('/addProduct', (req, res) => {
                         res.send(false);
                         return console.log('FAILED TO ADD PRODUCT!')
                     }
-                    res.send(true);
                     console.log("SUCCESSFULLY ADDED A NEW PRODUCT!")
                 });
 
@@ -229,15 +228,23 @@ app.post('/addProduct', (req, res) => {
 })
 
 app.delete('/deleteProduct/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    client.query('DELETE FROM Product where id = $1', [id], (err, res) => {
+    const id = req.params.id;
+    client.query('DELETE FROM Stocks where product_id = $1', [id], (err, result) => {
         if (err) {
             res.send(false);
-            return console.log('ERROR IN DELETE PRODUCT');
+            console.log('ERROR IN DELETE PRODUCT in stock', err);
+        }
+        console.log("SUCCESSFULLY DELETED A PRODUCT in stock");
+    })
+
+    client.query('DELETE FROM Product where product_id = $1', [id], (err, result) => {
+        if (err) {
+            res.send(false);
+            return console.log('ERROR IN DELETE PRODUCT', err);
         }
 
         res.send(true);
-        return console.log("SUCCESSFULLY DELTED A PRODUCT");
+        return console.log("SUCCESSFULLY DELETED A PRODUCT");
     })
 })
 
@@ -257,7 +264,7 @@ app.put('/updateQuantity', (req, res) => {
 
 // ****************** Update Product Pricing ********************* //
 app.put('/updateProduct', (req, res) => {
-
+    
 })
 
 // *******************  Add Order and Contains ***************** // 
