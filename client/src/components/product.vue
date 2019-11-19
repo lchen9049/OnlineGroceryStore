@@ -38,6 +38,13 @@
                 icon="plus-circle"
               />
             </td>
+            <td>
+              <font-awesome-icon
+                @click="$bvModal.show('addStock'+product.id);"
+                size="lg"
+                icon="plus-circle"
+              />
+            </td>
             <b-modal
               @hidden="amountToAdd=0;warehouse=null"
               :id="'addStock'+product.id"
@@ -209,57 +216,57 @@ export default {
   },
   methods: {
     deleteProduct(product) {
-      axios
-        .delete(`http://localhost:3000/deleteProduct/${product.id}`)
-        .then(response => {
-          this.application.products.fruits = [];
-          this.application.products.meats = [];
-          this.application.products.drinks = [];
-          axios
-            .get("http://localhost:3000/getAllProducts")
-            .then(response => {
-              console.log(response.data);
+      // axios
+      //   .delete(`http://localhost:3000/deleteProduct/${product.id}`)
+      //   .then(response => {
+      //     this.application.products.fruits = [];
+      //     this.application.products.meats = [];
+      //     this.application.products.drinks = [];
+      //     axios
+      //       .get("http://localhost:3000/getAllProducts")
+      //       .then(response => {
+      //         console.log(response.data);
 
-              let p = response.data;
+      //         let p = response.data;
 
-              p.forEach(prod => {
-                if (prod.category == "fruit") {
-                  this.application.products.fruits.push({
-                    id: prod.product_id,
-                    name: prod.product_name,
-                    price: prod.product_price,
-                    amountToBuy: 0,
-                    image: prod.p_image,
-                    quantity: prod.quantity
-                  });
-                } else if (prod.category == "meat") {
-                  this.application.products.meats.push({
-                    id: prod.product_id,
-                    name: prod.product_name,
-                    price: prod.product_price,
-                    amountToBuy: 0,
-                    image: prod.p_image,
-                    quantity: prod.quantity
-                  });
-                } else {
-                  this.application.products.drinks.push({
-                    id: prod.product_id,
-                    name: prod.product_name,
-                    price: prod.product_price,
-                    amountToBuy: 0,
-                    image: prod.p_image,
-                    quantity: prod.quantity
-                  });
-                }
-              });
-            })
-            .catch(error => {
-              console.log(error);
-            });
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      //         p.forEach(prod => {
+      //           if (prod.category == "fruit") {
+      //             this.application.products.fruits.push({
+      //               id: prod.product_id,
+      //               name: prod.product_name,
+      //               price: prod.product_price,
+      //               amountToBuy: 0,
+      //               image: prod.p_image,
+      //               quantity: prod.quantity
+      //             });
+      //           } else if (prod.category == "meat") {
+      //             this.application.products.meats.push({
+      //               id: prod.product_id,
+      //               name: prod.product_name,
+      //               price: prod.product_price,
+      //               amountToBuy: 0,
+      //               image: prod.p_image,
+      //               quantity: prod.quantity
+      //             });
+      //           } else {
+      //             this.application.products.drinks.push({
+      //               id: prod.product_id,
+      //               name: prod.product_name,
+      //               price: prod.product_price,
+      //               amountToBuy: 0,
+      //               image: prod.p_image,
+      //               quantity: prod.quantity
+      //             });
+      //           }
+      //         });
+      //       })
+      //       .catch(error => {
+      //         console.log(error);
+      //       });
+      //   })
+      //   .catch(error => {
+      //     console.log(error);
+      //   });
     },
     addToCart(product) {
       this.application.cart.push({
@@ -335,50 +342,50 @@ export default {
         product_quantity: this.newProduct.product_quantity
       });
       if (response.data) {
-        this.application.products.fruits = [];
-        this.application.products.meats = [];
-        this.application.products.drinks = [];
-        axios
-          .get("http://localhost:3000/getAllProducts")
-          .then(response => {
-            console.log(response.data);
+        // this.application.products.fruits = [];
+        // this.application.products.meats = [];
+        // this.application.products.drinks = [];
+        // axios
+        //   .get("http://localhost:3000/getAllProducts")
+        //   .then(response => {
+        //     console.log(response.data);
 
-            let p = response.data;
+        //     let p = response.data;
 
-            p.forEach(prod => {
-              if (prod.category == "fruit") {
-                this.application.products.fruits.push({
-                  id: prod.product_id,
-                  name: prod.product_name,
-                  price: prod.product_price,
-                  amountToBuy: 0,
-                  image: prod.p_image,
-                  quantity: prod.quantity
-                });
-              } else if (prod.category == "meat") {
-                this.application.products.meats.push({
-                  id: prod.product_id,
-                  name: prod.product_name,
-                  price: prod.product_price,
-                  amountToBuy: 0,
-                  image: prod.p_image,
-                  quantity: prod.quantity
-                });
-              } else {
-                this.application.products.drinks.push({
-                  id: prod.product_id,
-                  name: prod.product_name,
-                  price: prod.product_price,
-                  amountToBuy: 0,
-                  image: prod.p_image,
-                  quantity: prod.quantity
-                });
-              }
-            });
-          })
-          .catch(error => {
-            console.log(error);
-          });
+        //     p.forEach(prod => {
+        //       if (prod.category == "fruit") {
+        //         this.application.products.fruits.push({
+        //           id: prod.product_id,
+        //           name: prod.product_name,
+        //           price: prod.product_price,
+        //           amountToBuy: 0,
+        //           image: prod.p_image,
+        //           quantity: prod.quantity
+        //         });
+        //       } else if (prod.category == "meat") {
+        //         this.application.products.meats.push({
+        //           id: prod.product_id,
+        //           name: prod.product_name,
+        //           price: prod.product_price,
+        //           amountToBuy: 0,
+        //           image: prod.p_image,
+        //           quantity: prod.quantity
+        //         });
+        //       } else {
+        //         this.application.products.drinks.push({
+        //           id: prod.product_id,
+        //           name: prod.product_name,
+        //           price: prod.product_price,
+        //           amountToBuy: 0,
+        //           image: prod.p_image,
+        //           quantity: prod.quantity
+        //         });
+        //       }
+        //     });
+        //   })
+        //   .catch(error => {
+        //     console.log(error);
+        //   });
 
         this.$bvModal.hide("addNewProduct");
       } else {
