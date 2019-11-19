@@ -5,6 +5,12 @@ import Api from '@/services/Api'
 export default {
     register (credentials) {
         return Api().post('register', credentials)
+    },
+    addAddress (credentials) {
+        return Api().post('addAddress', credentials)
+    },
+    addPayment (credentials) {
+        return Api().post('addPayment', credentials)
     }
 }
 
