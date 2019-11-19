@@ -184,6 +184,59 @@ import { userInfo } from "./model/newApplication";
 import AuthenticationService from "@/services/AuthenticationService";
 import axios from "axios";
 
+let stateTaxMap = new Map();
+stateTaxMap.set('AL', 1.10)
+  .set('AK', 1.15)
+  .set('AS', 1.09)
+  .set('AZ', 1.12)
+  .set('AR', 1.14)
+  .set('CA', 1.15)
+  .set('CO', 1.10)
+  .set('CT', 1.07)
+  .set('DE', 1.12)
+  .set('FL', 1.15)
+  .set('GA', 1.12)
+  .set('HI', 1.11)
+  .set('IA', 1.07)
+  .set('ID', 1.12)
+  .set('IL', 1.11)
+  .set('IN', 1.09)
+  .set('KS', 1.05)
+  .set('KY', 1.06)
+  .set('LA', 1.14)
+  .set('MA', 1.09)
+  .set('MD', 1.10)
+  .set('ME', 1.11)
+  .set('MI', 1.05)
+  .set('MN', 1.08)
+  .set('MO', 1.10)
+  .set('MS', 1.09)
+  .set('MT', 1.11)
+  .set('NC', 1.14)
+  .set('ND', 1.03)
+  .set('NE', 1.04)
+  .set('NH', 1.12)
+  .set('NJ', 1.09)
+  .set('NM', 1.09)
+  .set('NV', 1.05)
+  .set('NY', 1.07)
+  .set('OH', 1.12)
+  .set('OK', 1.05)
+  .set('OR', 1.10)
+  .set('PA', 1.12)
+  .set('RI', 1.14)
+  .set('SC', 1.10)
+  .set('SD', 1.08)
+  .set('TN', 1.06)
+  .set('TX', 1.10)
+  .set('UT', 1.11)
+  .set('VA', 1.14)
+  .set('VT', 1.13)
+  .set('WA', 1.12)
+  .set('WI', 1.05)
+  .set('WV', 1.12)
+  .set('WY', 1.08);
+
 export default {
   name: "app",
   components: { Product, Cart, Profile },
@@ -489,7 +542,8 @@ export default {
           text: "Wyoming",
           value: "WY"
         }
-      ]
+      ],
+      stateTax: stateTaxMap
     };
   },
   methods: {
