@@ -208,13 +208,36 @@ app.post('/addProduct', (req, res) => {
                         return console.log('FAILED TO ADD PRODUCT!')
                     }
                     res.send(true);
-                    return console.log("SUCCESSFULLY ADDED A NEW PRODUCT!")
+                    console.log("SUCCESSFULLY ADDED A NEW PRODUCT!")
                 });
 
     client.query('SELECT * FROM Product', (err, result) => {
-        var p_id = result.rows[result.rows.length-1].id
+        var p_id = result.rows[result.rows.length-1].product_id;
+        client.query('INSERT INTO Stocks (warehouse_id, product_id, quantity) VALUES ($1, $2, $3)', 
+                    [req.body.warehouse_id, p_id, req.body.product_quantity], (err, result) => {
+                        if (err) {
+                            res.send(false);
+                            return console.log('ERROR IN ADDING NEW PRODUCT TO STOCKS');
+                        }
+
+                        res.send(true);
+                        return console.log('ADDED NEW PRODUCT SUCCESSFULLY IN STOCKS');
+                    })
     })
     
+})
+
+app.delete('/deleteProduct/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    client.query('DELETE FROM Product where id = $1', [id], (err, res) => {
+        if (err) {
+            res.send(false);
+            return console.log('ERROR IN DELETE PRODUCT');
+        }
+
+        res.send(true);
+        return console.log("SUCCESSFULLY DELTED A PRODUCT");
+    })
 })
 
 // *******************  Update quantity of a Product ***************** // 
