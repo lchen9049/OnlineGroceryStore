@@ -147,14 +147,28 @@ app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
 // ******************* Add a new address to an existing user ***************** // 
 app.post('/addAddress', (req, res) => {
     client.query('INSERT INTO Address (username, address, city, zipcode, state) VALUES ($1, $2, $3, $4, $5)', 
-                [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state]);
+                [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state], (err, result) => {
+                    if (err) {
+                        res.send(false);
+                        return console.log('ADD ADDRESS FAILED');
+                    }
+                    res.send(true);
+                    return console.log('ADD ADDRESS FAILED');
+                });
     // do whatever we want to do, can send back data as well
 })
 
 
 // ******************* Add a new payment method to an existing user ***************** // 
 app.post('/addPayment', (req, res) => {
-    client.query('INSERT INTO Card (billing_address, card_number, card_pin) VALUES ($1, $2, $3)', [req.body.billing_address, req.body.card_number, req.body.card_pin]);
+    client.query('INSERT INTO Card (billing_address, card_number, card_pin) VALUES ($1, $2, $3)', [req.body.billing_address, req.body.card_number, req.body.card_pin], (err, result) => {
+        if (err) {
+            res.send(false);
+            return console.log('ADD PAYMENT FAILED');
+        }
+        res.send(true);
+        return console.log('ADD PAYMENT Success');
+    });
     // do whatever
 })
 
@@ -164,22 +178,38 @@ app.post('/addProduct', (req, res) => {
     client.query('INSERT INTO Product (product_name, product_price, category, p_weight, p_image) VALUES ($1, $2, $3, $4, $5, $6)', 
                 [req.body.product_name, req.body.product_price, req.body.category, req.body.p_weight, req.body.p_image], (err, result) => {
                     if (err) {
-                        res.send('FAILED TO ADD PRODUCT!');
+                        res.send(false);
+                        return console.log('FAILED TO ADD PRODUCT!')
                     }
-                    res.send("SUCCESSFULLY ADDED TO PRODUCT TABLE");
+                    res.send(true);
+                    return console.log("SUCCESSFULLY ADDED A NEW PRODUCT!")
                 });
     
 })
 
 // *******************  Update quantity of a Product ***************** // 
 app.put('/updateQuantity', (req, res) => {
-    client.query('UPDATE Stock SET amount = $1 WHERE product_id = $2', [req.body.amount, req.body.product_id]);
+    client.query('UPDATE Stock SET amount = $1 WHERE product_id = $2', [req.body.amount, req.body.product_id], (err, result) => {
+        if (err) {
+            res.send(false);
+            return console.log('Update Quantity FAILED');
+        }
+        res.send(true);
+        return console.log('Update Quantity Success');
+    });
     // do whatever if needed
 })
 
 // *******************  Add Order ***************** // 
 app.post('/addOrder', (req, res) => {
-    client.query('INSERT INTO Order (username, product_id, order_status) VALUES ($1, $2, $3)', [req.body.username, req.body.product_id, req.body.order_status]);
+    client.query('INSERT INTO Order (username, product_id, order_status) VALUES ($1, $2, $3)', [req.body.username, req.body.product_id, req.body.order_status], (err, result) => {
+        if (err) {
+            res.send(false);
+            return console.log('Add Order FAILED');
+        }
+        res.send(true);
+        return console.log('ADD Order Successfully');
+    });
 
 })
 
@@ -187,6 +217,7 @@ app.post('/addOrder', (req, res) => {
 app.get('/getAllProducts', (req, res) => {
     client.query('SELECT * FROM Product Natural Join Stocks', (err, result) => {
         if (err) {
+            res.send(false);
             return console.log('error retreiving product query', err);
         }
 
