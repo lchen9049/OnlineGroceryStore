@@ -12,16 +12,19 @@
         <b-navbar toggleable="sm" type="light" variant="light">
           <b-collapse id="nav-collapse" is-nav>
             <b-navbar-nav>
-              <b-nav-item class="ml-5" @click="application.productType='fruit'">Fruits</b-nav-item>
-              <b-nav-item class="ml-5" @click="application.productType='meat'">Meat</b-nav-item>
-              <b-nav-item class="ml-5" @click="application.productType='drink'">Drink</b-nav-item>
+              <b-nav-item class="ml-5" @click="openProduct('fruit')">Fruits</b-nav-item>
+              <b-nav-item class="ml-5" @click="openProduct('meat')">Meat</b-nav-item>
+              <b-nav-item class="ml-5" @click="openProduct('drink')">Drink</b-nav-item>
               <b-nav-item></b-nav-item>
             </b-navbar-nav>
             <b-navbar-nav class="ml-auto">
               <font-awesome-icon size="2x" class="mr-2" @click="openCart()" icon="shopping-cart" />
               <div class="mr-5 mt-1">{{application.cart.length}}</div>
               <font-awesome-icon class="mr-1" size="2x" @click="login()" icon="user-circle" />
-              <div class="mt-1" v-if="authenticated">{{application.userInfo.firstName}} {{application.userInfo.lastName}}</div>
+              <div
+                class="mt-1"
+                v-if="authenticated"
+              >{{application.userInfo.firstName}} {{application.userInfo.lastName}}</div>
               <div class="mt-1" v-else>Not Logged In</div>
             </b-navbar-nav>
           </b-collapse>
@@ -30,13 +33,13 @@
     </div>
     <div class="row mt-5 justify-content-md-center">
       <div class="col-9" v-if="onProduct">
-        <Product :application.sync="application" :isAdmin="isAdmin"></Product>
+        <Product :application.sync="application"></Product>
       </div>
       <div class="col-9" v-else-if="onCart">
-        <Cart :application.sync="application" :isAdmin="isAdmin"></Cart>
+        <Cart :application.sync="application"></Cart>
       </div>
       <div class="col-9" v-else-if="onProfile">
-        <Profile :application.sync="application" :isAdmin="isAdmin"></Profile>
+        <Profile :application.sync="application" :states="states"></Profile>
       </div>
     </div>
 
@@ -61,12 +64,20 @@
           </div>
         </div>
         <div class="row mt-3">
-          <div class="col">
+          <div class="col-6">
             <b-button @click="$bvModal.hide('userLogin')">Cancel</b-button>
             <b-button @click="authenticate()">Login</b-button>
           </div>
           <div class="col">
             <span @click="needRegistration=true">Register</span>
+          </div>
+          <div class="col">
+            <b-form-checkbox
+              v-model="isAdmin"
+              name="staff"
+              value=true
+              unchecked-value=false
+            >Staff</b-form-checkbox>
           </div>
         </div>
       </div>
@@ -115,7 +126,7 @@
           <div class="col">
             <span>State</span>
             <b-form-select
-              :options="state"
+              :options="states"
               id="state"
               v-model="application.userInfo.primaryAddress.state"
             ></b-form-select>
@@ -180,7 +191,7 @@
 import Profile from "./components/profile";
 import Product from "./components/product";
 import Cart from "./components/cart";
-import { userInfo } from "./model/newApplication";
+//import { userInfo } from "./model/newApplication";
 import AuthenticationService from "@/services/AuthenticationService";
 import axios from "axios";
 
@@ -248,10 +259,11 @@ export default {
           meats: [],
           drinks: []
         },
-        cart: []
+        cart: [],
+        warehouses: [],
+        suppliers: [],
       },
-      currentProds:[],
-      state: [
+      states: [
         { value: null, text: "Please select state" },
         {
           text: "Alabama",
@@ -498,7 +510,8 @@ export default {
         username: this.application.userInfo.userName,
         pword: this.application.userInfo.passWord,
         customer_name:
-          this.application.userInfo.firstName + ' ' +
+          this.application.userInfo.firstName +
+          " " +
           this.application.userInfo.lastName,
         phone_number: this.application.userInfo.phoneNumber,
         address: this.application.userInfo.primaryAddress.address,
@@ -512,9 +525,9 @@ export default {
           " " +
           this.application.userInfo.primaryPayment.city +
           " " +
-          this.application.userInfo.primaryPayment.zipCode +
+          this.application.userInfo.primaryPayment.state +
           " " +
-          this.application.userInfo.primaryPayment.state
+          this.application.userInfo.primaryPayment.zipCode
       });
 
       console.log(response.data);
@@ -535,24 +548,46 @@ export default {
     authenticate() {
       axios
         .get(
-          `http://localhost:3000/login/${this.application.userInfo.userName}/${this.application.userInfo.passWord}/${this.application.userInfo.admin}`
+          `http://localhost:3000/login/${this.application.userInfo.userName}/${this.application.userInfo.passWord}/${this.isAdmin}`
         )
         .then(response => {
           console.log(response.data);
           this.UserLoggedIn = response.data;
-          if (!response.data) {
+          if (response.data[0] == null) {
             this.error = true;
           } else {
-            
-            let name = response.data[0].customer_name.split(' ');
+            let name = response.data[0].customer_name.split(" ");
 
-            this.application.userInfo.address.push({value: {address: response.data[1].address, city:response.data[1].city, zipcode: response.data[1].zipcode, state:response.data[1].state }, text: response.data[1].address + ' ' + response.data[1].city + ' ' + response.data[1].zipcode + ' ' + response.data[1].state});
-            this.application.userInfo.creditCards.push({value: {cardNumber:response.data[2].card_number, cardPin:response.data[2].card_pin, billingAddres:response.data[2].billing_address }, text: response.data[2].card_number});
+            this.application.userInfo.address.push({
+              value: {
+                address: response.data[1].address,
+                city: response.data[1].city,
+                zipcode: response.data[1].zipcode,
+                state: response.data[1].state
+              },
+              text:
+                response.data[1].address +
+                " " +
+                response.data[1].city +
+                " " +
+                response.data[1].state +
+                " " +
+                response.data[1].zipcode
+            });
+            this.application.userInfo.creditCards.push({
+              value: {
+                cardNumber: response.data[2].card_number,
+                cardPin: response.data[2].card_pin,
+                billingAddres: response.data[2].billing_address
+              },
+              text: response.data[2].card_number
+            });
             this.application.userInfo.primaryAddress = this.application.userInfo.address[0].value;
             this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[0].value;
             this.application.userInfo.firstName = name[0];
             this.application.userInfo.lastName = name[1];
-            console.log(this.application.userInfo)
+            if(this.isAdmin) this.application.userInfo.admin = true;
+            console.log(this.application.userInfo);
             this.authenticated = true;
             this.$bvModal.hide("userLogin");
           }
@@ -594,7 +629,8 @@ export default {
               name: prod.product_name,
               price: prod.product_price,
               amountToBuy: 0,
-              image: prod.p_image
+              image: prod.p_image,
+              quantity: prod.quantity
             });
           } else if (prod.category == "meat") {
             this.application.products.meats.push({
@@ -602,7 +638,8 @@ export default {
               name: prod.product_name,
               price: prod.product_price,
               amountToBuy: 0,
-              image: prod.p_image
+              image: prod.p_image,
+              quantity: prod.quantity
             });
           } else {
             this.application.products.drinks.push({
@@ -610,11 +647,11 @@ export default {
               name: prod.product_name,
               price: prod.product_price,
               amountToBuy: 0,
-              image: prod.p_image
+              image: prod.p_image,
+              quantity: prod.quantity
             });
           }
         });
-
       })
       .catch(error => {
         console.log(error);

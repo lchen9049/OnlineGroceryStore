@@ -71,25 +71,25 @@
         <div class="row mt-2">
           <div class="col">City</div>
           <div class="col">
-            <b-form-input id="passWord" v-model="newAddress.city"></b-form-input>
+            <b-form-input id="city" v-model="newAddress.city"></b-form-input>
           </div>
         </div>
         <div class="row mt-2">
           <div class="col">Zip Code</div>
           <div class="col">
-            <b-form-input id="address" v-model="newAddress.zipCode"></b-form-input>
+            <b-form-input id="zipCode" v-model="newAddress.zipCode"></b-form-input>
           </div>
         </div>
         <div class="row mt-2">
           <div class="col">State</div>
           <div class="col">
-            <b-form-input id="passWord" v-model="newAddress.state"></b-form-input>
+            <b-form-select :options="states" id="state" v-model="newAddress.state"></b-form-select>
           </div>
         </div>
         <div class="row mt-3">
           <div class="col">
             <b-button @click="$bvModal.hide('addInfo')">Cancel</b-button>
-            <b-button @click="addNewAddress()">Add</b-button>
+            <b-button @click="addAddress()">Add</b-button>
           </div>
         </div>
       </div>
@@ -133,7 +133,7 @@
         <div class="row mt-3">
           <div class="col">
             <b-button @click="$bvModal.hide('addInfo')">Cancel</b-button>
-            <b-button @click="addNewPayment()">Add</b-button>
+            <b-button @click="addPayment()">Add</b-button>
           </div>
         </div>
       </div>
@@ -161,10 +161,12 @@
 </template>
 
 <script>
+import AuthenticationService from "@/services/AuthenticationService";
+import axios from "axios";
 export default {
   name: "profile",
   components: {},
-  props: ["application", "isAdmin"],
+  props: ["application", "states"],
   beforeMount() {
     //this.userInfo = this.$route.params.info.userInfo;
   },
@@ -189,14 +191,65 @@ export default {
     };
   },
   methods: {
-    updateInformation() {
-
+    updateInformation() {},
+    async addPayment() {
+      const response = await AuthenticationService.addPayment({
+        billing_address:
+          this.newCard.billingAddress +
+          " " +
+          this.newCard.city +
+          " " +
+          this.newCard.state +
+          " " +
+          this.newCard.zipCode,
+        card_number: this.newCard.cardNumber,
+        card_pin: this.newCard.cardPin
+      });
+      console.log(response.data);
+      this.application.userInfo.creditCards.push({
+        value: {
+          cardNumber: this.newCard.cardNumber,
+          cardPin: this.newCard.cardPin,
+          billingAddres:
+            this.newCard.billingAddress +
+            " " +
+            this.newCard.city +
+            " " +
+            this.newCard.state +
+            " " +
+            this.newCard.zipCode
+        },
+        text: this.newCard.cardNumber
+      });
+      this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[this.application.userInfo.creditCards.length-1].value;
     },
-    addNewPayment() {
-
-    },
-    addNewAddress() {
-
+    async addAddress() {
+      const response = await AuthenticationService.addAddress({
+        username: this.application.userInfo.userName,
+        address: this.newAddress.address,
+        city: this.newAddress.city,
+        zipcode: this.newAddress.zipCode,
+        state: this.newAddress.state
+      });
+      console.log(response.data);
+      this.application.userInfo.address.push({
+        value: {
+          address: this.newAddress.address,
+          city: this.newAddress.city,
+          zipcode: this.newAddress.zipCode,
+          state: this.newAddress.state
+        },
+        text:
+          this.newAddress.address +
+          " " +
+          this.newAddress.city +
+          " " +
+          this.newAddress.state +
+          " " +
+          this.newAddress.zipCode
+      });
+      this.application.userInfo.primaryAddress = this.application.userInfo.address[this.application.userInfo.address.length-1].value;
+      console.log(this.application.userInfo.address);
     }
   },
   watch: {

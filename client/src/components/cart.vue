@@ -13,12 +13,7 @@
       <tbody>
         <tr v-for="(product, index) in application.cart" :key="product.id">
           <td>
-            <b-img
-              v-bind="mainProps"
-              src="https://picsum.photos/250/250/?image=54"
-              fluid
-              alt="Responsive image"
-            ></b-img>
+            <b-img v-bind="mainProps" :src="product.image" fluid alt="Responsive image"></b-img>
           </td>
           <td>{{product.id}}</td>
           <td>{{product.name}}</td>
@@ -34,6 +29,17 @@
         </tr>
       </tbody>
     </table>
+
+    <div class="row">
+      <div class="col-8">
+        <h2>Total Amount: ${{totalAmount}}</h2>
+      </div>
+      <div class="col">
+        <div class="float-right">
+          <b-button @click="checkout()">CHECKOUT</b-button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -43,7 +49,7 @@ import NewApp from "../model/newApplication";
 export default {
   name: "cart",
   components: {},
-  props: ["application", "isAdmin"],
+  props: ["application"],
   data() {
     return {
       mainProps: { blank: false, width: 75, height: 75, class: "m1" }
@@ -65,13 +71,37 @@ export default {
   },
   methods: {
     deleteProduct(index, product) {
-      this.application.products.forEach(function(prod) {
+      this.application.products.fruits.forEach(function(prod) {
         if (prod.id === product.id) {
-          prod.quantityLeft = prod.quantityLeft + parseInt(product.added);
+          prod.quantity = prod.quantity + parseInt(product.added);
+        }
+      });
+      this.application.products.meats.forEach(function(prod) {
+        if (prod.id === product.id) {
+          prod.quantity = prod.quantity + parseInt(product.added);
+        }
+      });
+      this.application.products.drinks.forEach(function(prod) {
+        if (prod.id === product.id) {
+          prod.quantity = prod.quantity + parseInt(product.added);
         }
       });
       this.application.cart.splice(index, 1);
       this.$bvModal.show("confirm" + product.id);
+    },
+    checkout(){
+
+    }
+  },
+  computed: {
+    totalAmount: function() {
+      let total = 0;
+      this.application.cart.forEach(prod => {
+        console.log(prod.price);
+        console.log(prod.amountToBuy);
+        total = total + prod.added * parseFloat(prod.price);
+      });
+      return total;
     }
   }
 };

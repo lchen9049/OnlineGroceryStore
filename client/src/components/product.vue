@@ -1,6 +1,6 @@
 <template>
   <div class="products">
-    <div v-if="isAdmin">
+    <div v-if="application.userInfo.admin">
       <table class="table mt-1">
         <thead class="thead-light">
           <tr>
@@ -8,18 +8,13 @@
             <th scope="col">Product ID</th>
             <th scope="col">Name</th>
             <th scope="col">Price</th>
-            <th scope="col" colspan="2">Quantity Left</th>
+            <th scope="col" colspan="3">Quantity Left</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="product in application.products" :key="product.id">
+          <tr v-for="product in currentProds" :key="product.id">
             <td>
-              <b-img
-                v-bind="mainProps"
-                src="https://picsum.photos/250/250/?image=54"
-                fluid
-                alt="Responsive image"
-              ></b-img>
+              <b-img v-bind="mainProps" :src="product.image" fluid alt="Responsive image"></b-img>
             </td>
             <td>
               <b-form-input :disabled="true" v-model="product.id"></b-form-input>
@@ -31,17 +26,20 @@
               <b-form-input :disabled="!edit" v-model="product.price"></b-form-input>
             </td>
             <td>
-              <b-form-input :disabled="!edit" v-model="product.quantityLeft"></b-form-input>
+              <b-form-input :disabled="!edit" v-model="product.quantity"></b-form-input>
             </td>
             <td>
               <font-awesome-icon @click="deleteProduct(product)" size="lg" icon="trash-alt" />
+            </td>
+            <td>
+              <font-awesome-icon @click="deleteProduct(product)" size="lg" icon="plus-circle" />
             </td>
           </tr>
         </tbody>
       </table>
       <div class="row">
         <div class="col-2">
-          <b-button>Add</b-button>
+          <b-button @click="$bvModal.show('addNewProduct')">Add</b-button>
         </div>
         <div class="col-2" v-if="edit">
           <b-button @click="edit=false">Save</b-button>
@@ -52,6 +50,9 @@
 
         <div class="col-8"></div>
       </div>
+      <b-modal id="addNewProduct" hide-footer title="Add New Product">
+
+      </b-modal>
     </div>
     <div v-else>
       <table class="table mt-1">
@@ -67,19 +68,14 @@
         <tbody>
           <tr v-for="product in currentProds" :key="product.id">
             <td>
-              <b-img
-                v-bind="mainProps"
-                :src="product.image"
-                fluid
-                alt="Responsive image"
-              ></b-img>
+              <b-img v-bind="mainProps" :src="product.image" fluid alt="Responsive image"></b-img>
             </td>
             <td>{{product.id}}</td>
             <td>{{product.name}}</td>
             <td>${{product.price}}</td>
             <td scope="row">
               <b-form-input class="col-4" v-model="product.amountToBuy"></b-form-input>
-              <span>Amount left:</span>
+              <span>Amount left: {{product.quantity}}</span>
             </td>
             <td>
               <b-button @click="addProduct(product)">Add Product</b-button>
@@ -91,6 +87,7 @@
           </tr>
         </tbody>
       </table>
+      <b-modal id="notEnoughStockWarning" hide-footer title="Not enough stock">{{warning}}</b-modal>
     </div>
   </div>
 </template>
@@ -101,12 +98,13 @@ import EditProduct from "./editProduct";
 export default {
   name: "product",
   components: { EditProduct },
-  props: ["application", "isAdmin"],
+  props: ["application"],
   data() {
     return {
       mainProps: { blank: false, width: 75, height: 75, class: "m1" },
       note: "",
-      edit: false
+      edit: false,
+      warning: null
     };
   },
   beforeMount() {},
@@ -128,13 +126,19 @@ export default {
         name: product.name,
         category: product.category,
         price: product.price,
-        quantityLeft: product.quantityLeft - product.amountToBuy,
-        added: product.amountToBuy
+        quantity: parseInt(product.quantity) - parseInt(product.amountToBuy),
+        added: product.amountToBuy,
+        image: product.image
       });
     },
     addProduct(product) {
       if (product.amountToBuy == 0) {
         this.note = "Please enter amount to add.";
+        this.$bvModal.show("confirm" + product.id);
+      } else if (parseInt(product.amountToBuy) > parseInt(product.quantity)) {
+        this.warning =
+          "There are only " + product.quantity + " " + product.name + " left.";
+        this.$bvModal.show("notEnoughStockWarning");
       } else {
         if (this.cartContainsProduct(product.id)) {
           this.addToCurrentProd(product.id, product.amountToBuy);
@@ -142,11 +146,11 @@ export default {
           this.addToCart(product);
         }
         this.note =
-          product.amountToBuy + " " + product.name + "has been added to cart!";
+          product.amountToBuy + " " + product.name + " has been added to cart!";
+        product.quantity = product.quantity - product.amountToBuy;
+        this.$bvModal.show("confirm" + product.id);
       }
-      product.quantityLeft = product.quantityLeft - product.amountToBuy;
       product.amountToBuy = 0;
-      this.$bvModal.show("confirm" + product.id);
     },
     cartContainsProduct(productID) {
       let found = false;
@@ -159,7 +163,7 @@ export default {
       this.application.cart.forEach(function(prod) {
         if (prod.id === id)
           prod.added = parseInt(prod.added) + parseInt(amount);
-        prod.quantityLeft = prod.quantityLeft - parseInt(amount);
+        prod.quantity = prod.quantity - parseInt(amount);
       });
     }
   },
