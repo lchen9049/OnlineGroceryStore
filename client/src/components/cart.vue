@@ -29,13 +29,44 @@
         </tr>
       </tbody>
     </table>
-
     <div class="row">
-      <div class="col-8">
-        <h2>Total Amount: ${{totalAmount}}</h2>
-      </div>
-      <div class="col">
+      <div class="col-5">
         <div class="float-right">
+          <h4>Subtotal:</h4>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="float-left">
+          <h4>${{subTotal}}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-5">
+        <div class="float-right">
+          <h4>Tax:</h4>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="float-left">
+          <h4>${{tax}}</h4> <h6>(Tax vary depending on state)</h6>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-5">
+        <div class="float-right">
+          <h2>Total:</h2>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="float-left">
+          <h2>${{subTotal+tax}}</h2>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="float-left">
           <b-button @click="checkout()">CHECKOUT</b-button>
         </div>
       </div>
@@ -45,11 +76,63 @@
 
 <script>
 import NewApp from "../model/newApplication";
-
+let stateTaxMap = new Map();
+stateTaxMap
+  .set("AL", 0.1)
+  .set("AK", 0.15)
+  .set("AS", 0.09)
+  .set("AZ", 0.12)
+  .set("AR", 0.14)
+  .set("CA", 0.15)
+  .set("CO", 0.1)
+  .set("CT", 0.07)
+  .set("DE", 0.12)
+  .set("FL", 0.15)
+  .set("GA", 0.12)
+  .set("HI", 0.11)
+  .set("IA", 0.07)
+  .set("ID", 0.12)
+  .set("IL", 0.11)
+  .set("IN", 0.09)
+  .set("KS", 0.05)
+  .set("KY", 0.06)
+  .set("LA", 0.14)
+  .set("MA", 0.09)
+  .set("MD", 0.1)
+  .set("ME", 0.11)
+  .set("MI", 0.05)
+  .set("MN", 0.08)
+  .set("MO", 0.1)
+  .set("MS", 0.09)
+  .set("MT", 0.11)
+  .set("NC", 0.14)
+  .set("ND", 0.03)
+  .set("NE", 0.04)
+  .set("NH", 0.12)
+  .set("NJ", 0.09)
+  .set("NM", 0.09)
+  .set("NV", 0.05)
+  .set("NY", 0.07)
+  .set("OH", 0.12)
+  .set("OK", 0.05)
+  .set("OR", 0.1)
+  .set("PA", 0.12)
+  .set("RI", 0.14)
+  .set("SC", 0.1)
+  .set("SD", 0.08)
+  .set("TN", 0.06)
+  .set("TX", 0.1)
+  .set("UT", 0.11)
+  .set("VA", 0.14)
+  .set("VT", 0.13)
+  .set("WA", 0.12)
+  .set("WI", 0.05)
+  .set("WV", 0.12)
+  .set("WY", 0.08);
 export default {
   name: "cart",
   components: {},
-  props: ["application"],
+  props: ["application", "authenticated"],
   data() {
     return {
       mainProps: { blank: false, width: 75, height: 75, class: "m1" }
@@ -89,12 +172,10 @@ export default {
       this.application.cart.splice(index, 1);
       this.$bvModal.show("confirm" + product.id);
     },
-    checkout(){
-
-    }
+    checkout() {}
   },
   computed: {
-    totalAmount: function() {
+    subTotal: function() {
       let total = 0;
       this.application.cart.forEach(prod => {
         console.log(prod.price);
@@ -102,6 +183,12 @@ export default {
         total = total + prod.added * parseFloat(prod.price);
       });
       return total;
+    },
+    tax: function() {
+      let rate = stateTaxMap.get(this.application.userInfo.primaryAddress.state)
+      
+      if(this.authenticated) return this.subTotal * rate;
+      else return 0;
     }
   }
 };

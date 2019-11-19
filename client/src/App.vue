@@ -23,8 +23,9 @@
               <font-awesome-icon class="mr-1" size="2x" @click="login()" icon="user-circle" />
               <div
                 class="mt-1"
-                v-if="authenticated"
+                v-if="authenticated && !isAdmin"
               >{{application.userInfo.firstName}} {{application.userInfo.lastName}}</div>
+              <div class="mt-1" v-else-if="authenticated && isAdmin">{{application.staffInfo.name}}</div>
               <div class="mt-1" v-else>Not Logged In</div>
             </b-navbar-nav>
           </b-collapse>
@@ -36,7 +37,7 @@
         <Product :application.sync="application"></Product>
       </div>
       <div class="col-9" v-else-if="onCart">
-        <Cart :application.sync="application"></Cart>
+        <Cart :application.sync="application" :authenticated="authenticated"></Cart>
       </div>
       <div class="col-9" v-else-if="onProfile">
         <Profile :application.sync="application" :states="states"></Profile>
@@ -75,8 +76,8 @@
             <b-form-checkbox
               v-model="isAdmin"
               name="staff"
-              value=true
-              unchecked-value=false
+              value="true"
+              unchecked-value="false"
             >Staff</b-form-checkbox>
           </div>
         </div>
@@ -196,57 +197,58 @@ import AuthenticationService from "@/services/AuthenticationService";
 import axios from "axios";
 
 let stateTaxMap = new Map();
-stateTaxMap.set('AL', 1.10)
-  .set('AK', 1.15)
-  .set('AS', 1.09)
-  .set('AZ', 1.12)
-  .set('AR', 1.14)
-  .set('CA', 1.15)
-  .set('CO', 1.10)
-  .set('CT', 1.07)
-  .set('DE', 1.12)
-  .set('FL', 1.15)
-  .set('GA', 1.12)
-  .set('HI', 1.11)
-  .set('IA', 1.07)
-  .set('ID', 1.12)
-  .set('IL', 1.11)
-  .set('IN', 1.09)
-  .set('KS', 1.05)
-  .set('KY', 1.06)
-  .set('LA', 1.14)
-  .set('MA', 1.09)
-  .set('MD', 1.10)
-  .set('ME', 1.11)
-  .set('MI', 1.05)
-  .set('MN', 1.08)
-  .set('MO', 1.10)
-  .set('MS', 1.09)
-  .set('MT', 1.11)
-  .set('NC', 1.14)
-  .set('ND', 1.03)
-  .set('NE', 1.04)
-  .set('NH', 1.12)
-  .set('NJ', 1.09)
-  .set('NM', 1.09)
-  .set('NV', 1.05)
-  .set('NY', 1.07)
-  .set('OH', 1.12)
-  .set('OK', 1.05)
-  .set('OR', 1.10)
-  .set('PA', 1.12)
-  .set('RI', 1.14)
-  .set('SC', 1.10)
-  .set('SD', 1.08)
-  .set('TN', 1.06)
-  .set('TX', 1.10)
-  .set('UT', 1.11)
-  .set('VA', 1.14)
-  .set('VT', 1.13)
-  .set('WA', 1.12)
-  .set('WI', 1.05)
-  .set('WV', 1.12)
-  .set('WY', 1.08);
+stateTaxMap
+  .set("AL", 0.1)
+  .set("AK", 0.15)
+  .set("AS", 0.09)
+  .set("AZ", 0.12)
+  .set("AR", 0.14)
+  .set("CA", 0.15)
+  .set("CO", 0.1)
+  .set("CT", 0.07)
+  .set("DE", 0.12)
+  .set("FL", 0.15)
+  .set("GA", 0.12)
+  .set("HI", 0.11)
+  .set("IA", 0.07)
+  .set("ID", 0.12)
+  .set("IL", 0.11)
+  .set("IN", 0.09)
+  .set("KS", 0.05)
+  .set("KY", 0.06)
+  .set("LA", 0.14)
+  .set("MA", 0.09)
+  .set("MD", 0.1)
+  .set("ME", 0.11)
+  .set("MI", 0.05)
+  .set("MN", 0.08)
+  .set("MO", 0.1)
+  .set("MS", 0.09)
+  .set("MT", 0.11)
+  .set("NC", 0.14)
+  .set("ND", 0.03)
+  .set("NE", 0.04)
+  .set("NH", 0.12)
+  .set("NJ", 0.09)
+  .set("NM", 0.09)
+  .set("NV", 0.05)
+  .set("NY", 0.07)
+  .set("OH", 0.12)
+  .set("OK", 0.05)
+  .set("OR", 0.1)
+  .set("PA", 0.12)
+  .set("RI", 0.14)
+  .set("SC", 0.1)
+  .set("SD", 0.08)
+  .set("TN", 0.06)
+  .set("TX", 0.1)
+  .set("UT", 0.11)
+  .set("VA", 0.14)
+  .set("VT", 0.13)
+  .set("WA", 0.12)
+  .set("WI", 0.05)
+  .set("WV", 0.12)
+  .set("WY", 0.08);
 
 export default {
   name: "app",
@@ -271,40 +273,17 @@ export default {
           phoneNumber: null,
           primaryAddress: [],
           primaryPayment: [],
-          orders: [
-            {
-              id: 1,
-              date: "1/1/2019",
-              amount: 200.5,
-              details: "dhasd dhasldh dhsalkdj"
-            },
-            {
-              id: 2,
-              date: "1/1/2019",
-              amount: 200.5,
-              details: "dhasd dhasldh dhsalkdj"
-            },
-            {
-              id: 3,
-              date: "1/1/2019",
-              amount: 200.5,
-              details: "dhasd dhasldh dhsalkdj"
-            },
-            {
-              id: 4,
-              date: "1/1/2019",
-              amount: 200.5,
-              details: "dhasd dhasldh dhsalkdj"
-            }
-          ],
+          orders: [],
           address: [],
           creditCards: []
         },
         staffInfo: {
           userName: null,
+          name: null,
           passWord: null,
           salary: null,
-          address: null
+          address: null,
+          jobTitle: null
         },
         productType: "fruit",
         products: {
@@ -313,8 +292,8 @@ export default {
           drinks: []
         },
         cart: [],
-        warehouses: [],
-        suppliers: [],
+        warehouses: [{value:null, text: 'Please select warehouse'}],
+        suppliers: [{value:null, text: 'Please select supplier'}]
       },
       states: [
         { value: null, text: "Please select state" },
@@ -609,6 +588,39 @@ export default {
           this.UserLoggedIn = response.data;
           if (response.data[0] == null) {
             this.error = true;
+          } else if (this.isAdmin) {
+            this.application.userInfo.admin = true;
+            this.application.staffInfo.userName = response.data[0][0].username;
+            this.application.staffInfo.name = response.data[0][0].staff_name;
+            this.application.staffInfo.passWord = this.application.userInfo.passWord;
+            this.application.staffInfo.salary = response.data[0][0].salary;
+            this.application.staffInfo.address = response.data[0][0].s_address;
+            this.application.staffInfo.jobTitle = response.data[0][0].job_title;
+            response.data[1].forEach(warehouse => {
+              this.application.warehouses.push({
+                value: {
+                  id: warehouse.warehouse_id,
+                  sid: warehouse.supplier_id,
+                  address: warehouse.w_address,
+                  capacity: warehouse.storage_capacity
+                },
+                text: warehouse.warehouse_id
+              });
+            });
+            response.data[2].forEach(supplier => {
+              this.application.suppliers.push({
+                value: {
+                  id: supplier.supplier_id,
+                  name: supplier.supplier_name,
+                  address: supplier.s_address
+                },
+                text: supplier.supplier_name
+              });
+            });
+
+            console.log(this.application);
+            this.authenticated = true;
+            this.$bvModal.hide("userLogin");
           } else {
             let name = response.data[0].customer_name.split(" ");
 
@@ -640,7 +652,6 @@ export default {
             this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[0].value;
             this.application.userInfo.firstName = name[0];
             this.application.userInfo.lastName = name[1];
-            if(this.isAdmin) this.application.userInfo.admin = true;
             console.log(this.application.userInfo);
             this.authenticated = true;
             this.$bvModal.hide("userLogin");

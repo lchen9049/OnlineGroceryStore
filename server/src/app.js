@@ -201,7 +201,7 @@ app.post('/addPayment', (req, res) => {
 
 // ****************** Add Product ******************** //
 app.post('/addProduct', (req, res) => {
-    client.query('INSERT INTO Product (product_name, product_price, category, p_weight, p_image) VALUES ($1, $2, $3, $4, $5, $6)', 
+    client.query('INSERT INTO Product (product_name, product_price, category, p_weight, p_image) VALUES ($1, $2, $3, $4, $5)', 
                 [req.body.product_name, req.body.product_price, req.body.category, req.body.p_weight, req.body.p_image], (err, result) => {
                     if (err) {
                         res.send(false);
@@ -213,11 +213,12 @@ app.post('/addProduct', (req, res) => {
 
     client.query('SELECT * FROM Product', (err, result) => {
         var p_id = result.rows[result.rows.length-1].product_id;
+        console.log(p_id);
         client.query('INSERT INTO Stocks (warehouse_id, product_id, quantity) VALUES ($1, $2, $3)', 
                     [req.body.warehouse_id, p_id, req.body.product_quantity], (err, result) => {
                         if (err) {
                             res.send(false);
-                            return console.log('ERROR IN ADDING NEW PRODUCT TO STOCKS');
+                            return console.log('ERROR IN ADDING NEW PRODUCT TO STOCKS', err);
                         }
 
                         res.send(true);

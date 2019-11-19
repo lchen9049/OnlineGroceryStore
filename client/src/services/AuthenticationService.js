@@ -11,6 +11,12 @@ export default {
     },
     addPayment (credentials) {
         return Api().post('addPayment', credentials)
+    },
+    addStock (credentials) {
+        return Api().put('updateQuantity', credentials)
+    },
+    addProduct(credentials) {
+        return Api().post('addProduct', credentials)
     }
 }
 
