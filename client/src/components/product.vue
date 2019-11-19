@@ -97,7 +97,11 @@
         <div class="row">
           <div class="col">
             Warehouse
-            <b-form-select id="warehouse" :options="application.warehouses" v-model="newProduct.warehouse"></b-form-select>
+            <b-form-select
+              id="warehouse"
+              :options="application.warehouses"
+              v-model="newProduct.warehouse"
+            ></b-form-select>
           </div>
           <div class="col">
             Quantity
@@ -184,7 +188,7 @@ export default {
         p_weight: null,
         p_image: null,
         warehouse: null,
-        product_quantity: null,
+        product_quantity: null
       },
       category: [
         { value: null, text: "Please Select Category" },
@@ -205,7 +209,57 @@ export default {
   },
   methods: {
     deleteProduct(product) {
-      console.log(product);
+      axios
+        .delete(`http://localhost:3000/deleteProduct/${product.id}`)
+        .then(response => {
+          this.application.products.fruits = [];
+          this.application.products.meats = [];
+          this.application.products.drinks = [];
+          axios
+            .get("http://localhost:3000/getAllProducts")
+            .then(response => {
+              console.log(response.data);
+
+              let p = response.data;
+
+              p.forEach(prod => {
+                if (prod.category == "fruit") {
+                  this.application.products.fruits.push({
+                    id: prod.product_id,
+                    name: prod.product_name,
+                    price: prod.product_price,
+                    amountToBuy: 0,
+                    image: prod.p_image,
+                    quantity: prod.quantity
+                  });
+                } else if (prod.category == "meat") {
+                  this.application.products.meats.push({
+                    id: prod.product_id,
+                    name: prod.product_name,
+                    price: prod.product_price,
+                    amountToBuy: 0,
+                    image: prod.p_image,
+                    quantity: prod.quantity
+                  });
+                } else {
+                  this.application.products.drinks.push({
+                    id: prod.product_id,
+                    name: prod.product_name,
+                    price: prod.product_price,
+                    amountToBuy: 0,
+                    image: prod.p_image,
+                    quantity: prod.quantity
+                  });
+                }
+              });
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
     addToCart(product) {
       this.application.cart.push({
@@ -278,7 +332,7 @@ export default {
         p_weight: parseFloat(this.newProduct.p_weight),
         p_image: this.newProduct.p_image,
         warehouse_id: this.newProduct.warehouse.id,
-        product_quantity: this.newProduct.product_quantity,
+        product_quantity: this.newProduct.product_quantity
       });
       if (response.data) {
         this.application.products.fruits = [];
@@ -328,7 +382,6 @@ export default {
 
         this.$bvModal.hide("addNewProduct");
       } else {
-
       }
     }
   },
