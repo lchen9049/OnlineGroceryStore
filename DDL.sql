@@ -52,8 +52,12 @@ create table Orders
 	(
 		order_id		varchar(10),	
 		username		varchar(20),
-		order_status	varchar(20) 
+		order_status	varchar(20)
 			check (order_status in ('pending', 'delivering', 'delivered')),
+		delivery_address varchar(100),
+		card_number		varchar(20),
+		card_pin		varchar(3),
+		billing_address varchar(100),
 		primary key (order_id),
 		foreign key (username) references Customer (username)
 	);

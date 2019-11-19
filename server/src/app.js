@@ -13,6 +13,10 @@ const client = new Client({
     connectionString: conString,
 });
 
+var ID = function () {
+    return Math.random().toString(36).substr(2,9);
+}
+
 
 app.set('views', __dirname + '/views');
 
@@ -103,18 +107,40 @@ app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
             if (isAdmin == 'true') {
                 client.query('SELECT * FROM Staff where username = $1', [uname], (err, result) => {
                     if (err) {
+                        res.send('ERROR IN STAFF')
                         return console.log(' error getting staff query', err);
                     }
 
-                    userData.push(result.rows[0]);
+                    userData.push(result.rows);
                 })
+
+                client.query('SELECT * FROM warehouse', (err, result) => {
+                    if (err) {
+                        res.send('ERROR IN STAFF WAREHOUSE')
+                        return console.log('Error getting staff query', err)
+                    }
+
+                    userData.push(result.rows);
+                })
+
+                client.query('SELECT * FROM supplier', (err, result) => {
+                    if (err) {
+                        res.send('ERROR IN SUPPLIER')
+                        return console.log('Error getting staff query', err)
+                    }
+
+                    userData.push(result.rows);
+                    res.send(userData);
+                })
+
+                
             } else { // customer
                 client.query('SELECT * FROM Customer where username = $1', [uname], (err, result) => {
                     if (err) {
                         return console.log(' error getting staff query', err);
                     }
 
-                    userData.push(result.rows[0]);
+                    userData.push(result.rows);
                 })
 
                 client.query('SELECT * FROM Address where username = $1', [uname], (err, result) => {
@@ -122,7 +148,7 @@ app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
                         return console.log(' error getting staff query', err);
                     }
 
-                    userData.push(result.rows[0]);
+                    userData.push(result.rows);
                 })
 
                 client.query('SELECT * FROM Card where username = $1', [uname], (err, result) => {
@@ -130,7 +156,7 @@ app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
                         return console.log(' error getting staff query', err);
                     }
 
-                    userData.push(result.rows[0]);
+                    userData.push(result.rows);
                     res.send(userData);
                 })
 
@@ -184,12 +210,16 @@ app.post('/addProduct', (req, res) => {
                     res.send(true);
                     return console.log("SUCCESSFULLY ADDED A NEW PRODUCT!")
                 });
+
+    client.query('SELECT * FROM Product', (err, result) => {
+        var p_id = result.rows[result.rows.length-1].id
+    })
     
 })
 
 // *******************  Update quantity of a Product ***************** // 
 app.put('/updateQuantity', (req, res) => {
-    client.query('UPDATE Stock SET amount = $1 WHERE product_id = $2', [req.body.amount, req.body.product_id], (err, result) => {
+    client.query('UPDATE Stocks SET quantity = $1 WHERE warehouse_id = $2 AND product_id = $3', [req.body.product_quantity, req.body.warehouse_id, req.body.product_id], (err, result) => {
         if (err) {
             res.send(false);
             return console.log('Update Quantity FAILED');
@@ -200,16 +230,26 @@ app.put('/updateQuantity', (req, res) => {
     // do whatever if needed
 })
 
-// *******************  Add Order ***************** // 
+// *******************  Add Order and Contains ***************** // 
 app.post('/addOrder', (req, res) => {
-    client.query('INSERT INTO Order (username, product_id, order_status) VALUES ($1, $2, $3)', [req.body.username, req.body.product_id, req.body.order_status], (err, result) => {
-        if (err) {
-            res.send(false);
-            return console.log('Add Order FAILED');
-        }
-        res.send(true);
-        return console.log('ADD Order Successfully');
-    });
+    for (var i = 0; i < req.body.product_id; i++) {
+        var id = ID();
+        client.query('INSERT INTO Order (order_id, username, order_status, delivery_address, card_number, card_pin, billing_address) VALUES ($1, $2, $3, $4, $5, $6, $7)', 
+                    [id, req.body.username, 'pending', req.body.delivery_address, req.body.card_number, req.body.card_pin, req.body.billing_address], (err, result) => {
+            if (err) {
+                res.send(false);
+                return console.log('Add Order FAILED - before adding to TABLE CONTAINS');
+            } else {
+                client.query('INSERT INTO Contain (order_id, product_id, price_amount, product_quantity) VALUES ($1, $2, $3, $4)', [id, req.body.product_id[i], req.body.price_amount, req.body.product_quantity], (err, result) => {
+                    console.log('ADD Order Successfully');
+                })
+            }
+        });
+    }
+
+    res.send(true);
+    return console.log('ALL ORDERS ADDED SUCCESSFULLY')
+    
 
 })
 
@@ -228,4 +268,6 @@ app.get('/getAllProducts', (req, res) => {
 
 app.listen(3000, function() {
     console.log('Server is running on 3000');
+    console.log(ID());
+
 });
