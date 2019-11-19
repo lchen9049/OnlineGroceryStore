@@ -201,7 +201,7 @@ app.post('/addPayment', (req, res) => {
 
 // ****************** Add Product ******************** //
 app.post('/addProduct', (req, res) => {
-    client.query('INSERT INTO Product (product_name, product_price, category, p_weight, p_image) VALUES ($1, $2, $3, $4, $5, $6)', 
+    client.query('INSERT INTO Product (product_name, product_price, category, p_weight, p_image) VALUES ($1, $2, $3, $4, $5)', 
                 [req.body.product_name, req.body.product_price, req.body.category, req.body.p_weight, req.body.p_image], (err, result) => {
                     if (err) {
                         res.send(false);
