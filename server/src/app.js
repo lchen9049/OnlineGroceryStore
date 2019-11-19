@@ -264,7 +264,14 @@ app.put('/updateQuantity', (req, res) => {
 
 // ****************** Update Product Pricing ********************* //
 app.put('/updateProduct', (req, res) => {
-    
+    client.query('UPDATE Product SET product_name=$1, product_price=$2, category=$3, p_weight=$4, p_image=$5 WHERE product_id = $6', 
+                [req.body.product_name, req.body.product_price, req.body.category, req.body.p_weight, req.body.p_image, req.body.product_id], (err, result) => {
+                    if (err) {
+                        res.send(false);
+                        return console.log('FAILED TO Update PRODUCT!')
+                    }
+                    console.log("SUCCESSFULLY UPDATED A NEW PRODUCT!")
+                });
 })
 
 // *******************  Add Order and Contains ***************** // 
