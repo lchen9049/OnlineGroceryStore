@@ -285,6 +285,15 @@ app.post('/addOrder', (req, res) => {
                 return console.log('Add Order FAILED - before adding to TABLE CONTAINS', err);
             } else {
                 client.query('INSERT INTO Contain (order_id, product_id, price_amount, product_quantity) VALUES ($1, $2, $3, $4)', [id, req.body.products[i].product_id, req.body.products[i].price_amount, req.body.products[i].product_quantity], (err, result) => {
+                    if (err) {
+                        return console.log('FAILED TO INSERT CONTAINS TABLE', err);
+                    } else {
+                        client.query('UPDATE Stocks SET quantity=$1 WHERE product_id = $2', [req.body.product_leftover], (err, result) => {
+                            if (err) {
+                                return console.log('FAILED TO UPDATE STOCKS QUANTITY AFTER INSERT INTO CONTAIN', err);
+                            }
+                        })
+                    }
                     console.log('ADD Order Successfully');
                 })
             }
