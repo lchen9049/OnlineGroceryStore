@@ -299,11 +299,12 @@ app.post('/addOrder', (req, res) => {
             } 
         })
 
-        client.query('UPDATE Stocks SET quantity=$1 WHERE product_id = $2', [req.body.product_leftover, req.body.product_id], (err, result) => {
+        client.query('UPDATE Stocks SET quantity=$1 WHERE product_id = $2', [productArr.product_leftover, productArr.product_id], (err, result) => {
             if (err) {
                 // res.send(false)
                 return console.log('FAILED TO UPDATE STOCKS QUANTITY AFTER INSERT INTO CONTAIN', err);
             }
+            console.log('updated')
         })     
     }
 
