@@ -191,7 +191,7 @@ export default {
         let prods = []
         this.application.cart.forEach(p => {
           console.log(p);
-          prods.push({product_id: p.id, price_amount: parseInt(p.added)*parseFloat(p.price), product_quantity: p.added, product_leftover: p.quantity})
+          prods.push({product_id: p.id, price_amount: parseInt(p.added)*parseFloat(p.price), product_quantity: parseInt(p.added), product_leftover: parseInt(p.quantity)})
           console.log(prods[prods.length-1])
         })
 

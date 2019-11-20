@@ -330,6 +330,16 @@ export default {
         };
         this.$bvModal.hide("addInfo");
       }
+    },
+    async deleteAddress(address) {
+      const response = await AuthenticationService.deleteAddress({
+        username: this.application.userInfo.userName,
+        address: this.address.address,
+        city: this.address.city,
+        zipcode: this.address.zipCode,
+        state: this.address.state
+      });
+      console.log(response.data);
     }
   },
   watch: {

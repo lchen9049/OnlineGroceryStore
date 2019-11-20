@@ -227,6 +227,18 @@ app.post('/addProduct', (req, res) => {
     
 })
 
+app.delete('/deleteAddress', (req, res) => {
+
+    client.query('DELETE FROM Address where username = $1, address = $2, city = $3, zipcode = $4, state = $5', [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state], (err, result) => {
+        if (err) {
+            res.send(false);
+            console.log('ERROR IN DELETE ADDRESS in stock', err);
+        }
+        console.log("SUCCESSFULLY DELETED A ADDRESS in stock");
+    })
+
+})
+
 app.delete('/deleteProduct/:id', (req, res) => {
     const id = req.params.id;
     client.query('DELETE FROM Stocks where product_id = $1', [id], (err, result) => {
@@ -276,7 +288,7 @@ app.put('/updateProduct', (req, res) => {
 
 // *******************  Add Order and Contains ***************** // 
 app.post('/addOrder', (req, res) => {
-    for (var i = 0; i < req.body.products; i++) {
+    for (var i = 0; i < req.body.products.length; i++) {
         var id = ID();
         client.query('INSERT INTO Order (order_id, username, order_status, delivery_address, card_number, card_pin, billing_address, order_total) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', 
                     [id, req.body.username, 'pending', req.body.delivery_address, req.body.card_number, req.body.card_pin, req.body.billing_address, req.body.order_total], (err, result) => {

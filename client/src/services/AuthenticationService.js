@@ -23,6 +23,9 @@ export default {
     },
     addOrder(credentials) {
         return Api().post('addOrder', credentials)
+    },
+    deleteAddress(credentials) {
+        return Api().delete('deleteAddress', credentials)
     }
 }
 
