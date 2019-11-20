@@ -276,7 +276,7 @@ app.put('/updateProduct', (req, res) => {
 
 // *******************  Add Order and Contains ***************** // 
 app.post('/addOrder', (req, res) => {
-    for (var i = 0; i < req.body.products; i++) {
+    for (var i = 0; i < req.body.products.length; i++) {
         var id = ID();
         client.query('INSERT INTO Order (order_id, username, order_status, delivery_address, card_number, card_pin, billing_address, order_total) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', 
                     [id, req.body.username, 'pending', req.body.delivery_address, req.body.card_number, req.body.card_pin, req.body.billing_address, req.body.order_total], (err, result) => {
@@ -315,6 +315,30 @@ app.get('/getAllProducts', (req, res) => {
         }
 
         res.send(result.rows);
+    })
+})
+
+// ****************  Get all orders ***************//
+
+app.get('/getAllOrders', (req, res) => {
+    var orderData = []
+    client.query('SELECT * FROM Orders', (err, result) => {
+        if (err) {
+            res.send(false);
+            return console.log('ERROR ADDING ORDERS TO DATA []', err);
+        }
+        orderData.push(result.rows);
+    })
+
+    client.query('SELECT * FROM contain', (err, result) => {
+        if (err) {
+            res.send(false)
+            return console.log('ERROR ADDING CONTAINS TO DATA[]', err)
+        }
+            
+        orderData.push(result.rows);
+        res.send(orderData);
+        return console.log('RETURNED ALL ORDER');
     })
 })
 
