@@ -25,7 +25,10 @@
                 class="mt-1"
                 v-if="authenticated && !isAdmin"
               >{{application.userInfo.firstName}} {{application.userInfo.lastName}}</div>
-              <div class="mt-1" v-else-if="authenticated && isAdmin">{{application.staffInfo.name}}</div>
+              <div
+                class="mt-1"
+                v-else-if="authenticated && isAdmin"
+              >{{application.staffInfo.firstName}} {{application.staffInfo.lastName}}</div>
               <div class="mt-1" v-else>Not Logged In</div>
             </b-navbar-nav>
           </b-collapse>
@@ -40,7 +43,11 @@
         <Cart :application.sync="application" :authenticated="authenticated"></Cart>
       </div>
       <div class="col-9" v-else-if="onProfile">
-        <Profile :application.sync="application" :states="states"></Profile>
+        <Profile
+          :application.sync="application"
+          :states="states"
+          :authenticated.sync="authenticated"
+        ></Profile>
       </div>
     </div>
 
@@ -279,7 +286,8 @@ export default {
         },
         staffInfo: {
           userName: null,
-          name: null,
+          firstName: null,
+          lastName: null,
           passWord: null,
           salary: null,
           address: null,
@@ -292,8 +300,8 @@ export default {
           drinks: []
         },
         cart: [],
-        warehouses: [{value:null, text: 'Please select warehouse'}],
-        suppliers: [{value:null, text: 'Please select supplier'}]
+        warehouses: [{ value: null, text: "Please select warehouse" }],
+        suppliers: [{ value: null, text: "Please select supplier" }]
       },
       states: [
         { value: null, text: "Please select state" },
@@ -589,9 +597,13 @@ export default {
           if (response.data[0] == null) {
             this.error = true;
           } else if (this.isAdmin) {
+            let name = response.data[0][0].staff_name.split(" ");
+
             this.application.userInfo.admin = true;
             this.application.staffInfo.userName = response.data[0][0].username;
-            this.application.staffInfo.name = response.data[0][0].staff_name;
+            //this.application.staffInfo.name = response.data[0][0].staff_name;
+            this.application.staffInfo.firstName = name[0];
+            this.application.staffInfo.lastName = name[1];
             this.application.staffInfo.passWord = this.application.userInfo.passWord;
             this.application.staffInfo.salary = response.data[0][0].salary;
             this.application.staffInfo.address = response.data[0][0].s_address;
@@ -622,32 +634,36 @@ export default {
             this.authenticated = true;
             this.$bvModal.hide("userLogin");
           } else {
-            let name = response.data[0].customer_name.split(" ");
+            let name = response.data[0][0].customer_name.split(" ");
+            response.data[1].forEach(address => {
+              this.application.userInfo.address.push({
+                value: {
+                  address: address.address,
+                  city: address.city,
+                  zipcode: address.zipcode,
+                  state: address.state
+                },
+                text:
+                  address.address +
+                  " " +
+                  address.city +
+                  " " +
+                  address.state +
+                  " " +
+                  address.zipcode
+              });
+            });
+            response.data[2].forEach(card => {
+              this.application.userInfo.creditCards.push({
+                value: {
+                  cardNumber: card.card_number,
+                  cardPin: card.card_pin,
+                  billingAddres: card.billing_address
+                },
+                text: card.card_number
+              });
+            });
 
-            this.application.userInfo.address.push({
-              value: {
-                address: response.data[1].address,
-                city: response.data[1].city,
-                zipcode: response.data[1].zipcode,
-                state: response.data[1].state
-              },
-              text:
-                response.data[1].address +
-                " " +
-                response.data[1].city +
-                " " +
-                response.data[1].state +
-                " " +
-                response.data[1].zipcode
-            });
-            this.application.userInfo.creditCards.push({
-              value: {
-                cardNumber: response.data[2].card_number,
-                cardPin: response.data[2].card_pin,
-                billingAddres: response.data[2].billing_address
-              },
-              text: response.data[2].card_number
-            });
             this.application.userInfo.primaryAddress = this.application.userInfo.address[0].value;
             this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[0].value;
             this.application.userInfo.firstName = name[0];
@@ -677,6 +693,32 @@ export default {
       this.onProduct = true;
       this.onCart = false;
       this.onProfile = false;
+    },
+    logout() {
+      this.application.userInfo.admin = false;
+      this.application.userInfo.userName = null;
+      this.application.userInfo.passWord = null;
+      this.application.cart.forEach(product => {
+        this.application.products.fruits.forEach(function(prod) {
+          if (prod.id === product.id) {
+            prod.quantity = prod.quantity + parseInt(product.added);
+          }
+        });
+        this.application.products.meats.forEach(function(prod) {
+          if (prod.id === product.id) {
+            prod.quantity = prod.quantity + parseInt(product.added);
+          }
+        });
+        this.application.products.drinks.forEach(function(prod) {
+          if (prod.id === product.id) {
+            prod.quantity = prod.quantity + parseInt(product.added);
+          }
+        });
+      });
+      this.application.cart = [];
+      this.isAdmin = false;
+      this.authenticated = false;
+      this.openProduct("fruit");
     }
   },
   mounted() {
@@ -695,7 +737,10 @@ export default {
               price: prod.product_price,
               amountToBuy: 0,
               image: prod.p_image,
-              quantity: prod.quantity
+              quantity: prod.quantity,
+              weight: prod.p_weight,
+              category: prod.category,
+              warehouse: prod.warehouse_id
             });
           } else if (prod.category == "meat") {
             this.application.products.meats.push({
@@ -704,7 +749,10 @@ export default {
               price: prod.product_price,
               amountToBuy: 0,
               image: prod.p_image,
-              quantity: prod.quantity
+              quantity: prod.quantity,
+              weight: prod.p_weight,
+              category: prod.category,
+              warehouse: prod.warehouse_id
             });
           } else {
             this.application.products.drinks.push({
@@ -713,7 +761,10 @@ export default {
               price: prod.product_price,
               amountToBuy: 0,
               image: prod.p_image,
-              quantity: prod.quantity
+              quantity: prod.quantity,
+              weight: prod.p_weight,
+              category: prod.category,
+              warehouse: prod.warehouse_id
             });
           }
         });

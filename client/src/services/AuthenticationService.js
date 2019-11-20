@@ -17,6 +17,9 @@ export default {
     },
     addProduct(credentials) {
         return Api().post('addProduct', credentials)
+    },
+    updateProduct(credentials) {
+        return Api().put('updateProduct', credentials)
     }
 }
 
