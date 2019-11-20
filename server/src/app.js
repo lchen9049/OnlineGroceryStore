@@ -227,18 +227,6 @@ app.post('/addProduct', (req, res) => {
     
 })
 
-app.delete('/deleteAddress', (req, res) => {
-
-    client.query('DELETE FROM Address where username = $1, address = $2, city = $3, zipcode = $4, state = $5', [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state], (err, result) => {
-        if (err) {
-            res.send(false);
-            console.log('ERROR IN DELETE ADDRESS in stock', err);
-        }
-        console.log("SUCCESSFULLY DELETED A ADDRESS in stock");
-    })
-
-})
-
 app.delete('/deleteProduct/:id', (req, res) => {
     const id = req.params.id;
     client.query('DELETE FROM Stocks where product_id = $1', [id], (err, result) => {
