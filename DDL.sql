@@ -58,6 +58,7 @@ create table Orders
 		card_number		varchar(20),
 		card_pin		varchar(3),
 		billing_address varchar(100),
+		order_total		numeric(8, 2),
 		primary key (order_id),
 		foreign key (username) references Customer (username)
 	);

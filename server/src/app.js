@@ -276,15 +276,15 @@ app.put('/updateProduct', (req, res) => {
 
 // *******************  Add Order and Contains ***************** // 
 app.post('/addOrder', (req, res) => {
-    for (var i = 0; i < req.body.product_id; i++) {
+    for (var i = 0; i < req.body.products; i++) {
         var id = ID();
-        client.query('INSERT INTO Order (order_id, username, order_status, delivery_address, card_number, card_pin, billing_address) VALUES ($1, $2, $3, $4, $5, $6, $7)', 
-                    [id, req.body.username, 'pending', req.body.delivery_address, req.body.card_number, req.body.card_pin, req.body.billing_address], (err, result) => {
+        client.query('INSERT INTO Order (order_id, username, order_status, delivery_address, card_number, card_pin, billing_address, order_total) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', 
+                    [id, req.body.username, 'pending', req.body.delivery_address, req.body.card_number, req.body.card_pin, req.body.billing_address, req.body.order_total], (err, result) => {
             if (err) {
                 res.send(false);
-                return console.log('Add Order FAILED - before adding to TABLE CONTAINS');
+                return console.log('Add Order FAILED - before adding to TABLE CONTAINS', err);
             } else {
-                client.query('INSERT INTO Contain (order_id, product_id, price_amount, product_quantity) VALUES ($1, $2, $3, $4)', [id, req.body.product_id[i], req.body.price_amount, req.body.product_quantity], (err, result) => {
+                client.query('INSERT INTO Contain (order_id, product_id, price_amount, product_quantity) VALUES ($1, $2, $3, $4)', [id, req.body.products[i].product_id, req.body.products[i].price_amount, req.body.products[i].product_quantity], (err, result) => {
                     console.log('ADD Order Successfully');
                 })
             }
