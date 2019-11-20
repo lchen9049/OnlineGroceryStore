@@ -15,12 +15,14 @@ import { faShoppingCart } from '@fortawesome/free-solid-svg-icons'
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'
+import { faEdit } from '@fortawesome/free-solid-svg-icons'
 
 library.add(faUserSecret)
 library.add(faTrashAlt)
 library.add(faShoppingCart)
 library.add(faUserCircle)
 library.add(faPlusCircle)
+library.add(faEdit)
 
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)

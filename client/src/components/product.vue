@@ -8,7 +8,7 @@
             <th scope="col">Product ID</th>
             <th scope="col">Name</th>
             <th scope="col">Price</th>
-            <th scope="col" colspan="3">Quantity Left</th>
+            <th scope="col" colspan="4">Quantity Left</th>
           </tr>
         </thead>
         <tbody>
@@ -40,11 +40,57 @@
             </td>
             <td>
               <font-awesome-icon
-                @click="$bvModal.show('addStock'+product.id);"
+                @click="$bvModal.show('editStock'+product.id);newProduct=JSON.parse(JSON.stringify(product))"
                 size="lg"
-                icon="plus-circle"
+                icon="edit"
               />
             </td>
+            <b-modal :id="'editStock'+product.id" hide-footer :title="product.name">
+              <div class="row">
+                <div class="col">
+                  Product Name
+                  <b-form-input id="prodName" v-model="newProduct.name"></b-form-input>
+                </div>
+                <div class="col">
+                  Product Price
+                  <b-form-input id="prodPrice" v-model="newProduct.price"></b-form-input>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  Category
+                  <b-form-select id="category" :options="category" v-model="newProduct.category"></b-form-select>
+                </div>
+                <div class="col">
+                  Weight
+                  <b-form-input id="p_weight" v-model="newProduct.weight"></b-form-input>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  Warehouse
+                  <b-form-input id="warehouse" :disabled="true" v-model="newProduct.warehouse"></b-form-input>
+                </div>
+                <div class="col">
+                  Quantity
+                  <b-form-input id="quantity" v-model="newProduct.quantity"></b-form-input>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  Image Url
+                  <b-form-input id="p_image" v-model="newProduct.image"></b-form-input>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col">
+                  <div class="float-right">
+                    <b-button @click="updateProduct()">Update</b-button>
+                    <b-button @click="$bvModal.hide('editStock'+product.id)">Cancel</b-button>
+                  </div>
+                </div>
+              </div>
+            </b-modal>
             <b-modal
               @hidden="amountToAdd=0;warehouse=null"
               :id="'addStock'+product.id"
@@ -68,18 +114,13 @@
         </tbody>
       </table>
       <div class="row">
-        <div class="col-2">
-          <b-button @click="$bvModal.show('addNewProduct')">Add</b-button>
+        <div class="col">
+          <div class="float-right">
+            <b-button @click="$bvModal.show('addNewProduct');newProduct=new newProd()">Add New Stock</b-button>
+          </div>
         </div>
-        <div class="col-2" v-if="edit">
-          <b-button @click="edit=false">Save</b-button>
-        </div>
-        <div class="col-2" v-else>
-          <b-button @click="edit=true">Edit</b-button>
-        </div>
-
-        <div class="col-8"></div>
       </div>
+      <div class="row mt-5"></div>
       <b-modal id="addNewProduct" hide-footer title="Add New Product">
         <div class="row">
           <div class="col">
@@ -155,7 +196,7 @@
               <span>Amount left: {{product.quantity}}</span>
             </td>
             <td>
-              <b-button @click="addProduct(product)">Add Product</b-button>
+              <b-button @click="addProductToCart(product)">Add Product</b-button>
 
               <b-modal :id="'confirm' + product.id" title="Confirmation">
                 <p class="my-4">{{note}}</p>
@@ -174,6 +215,7 @@ import AuthenticationService from "@/services/AuthenticationService";
 import axios from "axios";
 import NewApp from "../model/newApplication";
 import EditProduct from "./editProduct";
+import newProd from "../model/product"
 export default {
   name: "product",
   components: { EditProduct },
@@ -219,50 +261,48 @@ export default {
       axios
         .delete(`http://localhost:3000/deleteProduct/${product.id}`)
         .then(response => {
-          // this.application.products.fruits = [];
-          // this.application.products.meats = [];
-          // this.application.products.drinks = [];
-          // axios
-          //   .get("http://localhost:3000/getAllProducts")
-          //   .then(response => {
-          //     console.log(response.data);
-
-          //     let p = response.data;
-
-          //     p.forEach(prod => {
-          //       if (prod.category == "fruit") {
-          //         this.application.products.fruits.push({
-          //           id: prod.product_id,
-          //           name: prod.product_name,
-          //           price: prod.product_price,
-          //           amountToBuy: 0,
-          //           image: prod.p_image,
-          //           quantity: prod.quantity
-          //         });
-          //       } else if (prod.category == "meat") {
-          //         this.application.products.meats.push({
-          //           id: prod.product_id,
-          //           name: prod.product_name,
-          //           price: prod.product_price,
-          //           amountToBuy: 0,
-          //           image: prod.p_image,
-          //           quantity: prod.quantity
-          //         });
-          //       } else {
-          //         this.application.products.drinks.push({
-          //           id: prod.product_id,
-          //           name: prod.product_name,
-          //           price: prod.product_price,
-          //           amountToBuy: 0,
-          //           image: prod.p_image,
-          //           quantity: prod.quantity
-          //         });
-          //       }
-          //     });
-          //   })
-          //   .catch(error => {
-          //     console.log(error);
-          //   });
+          this.application.products.fruits = [];
+          this.application.products.meats = [];
+          this.application.products.drinks = [];
+          axios
+            .get("http://localhost:3000/getAllProducts")
+            .then(response => {
+              console.log(response.data);
+              let p = response.data;
+              p.forEach(prod => {
+                if (prod.category == "fruit") {
+                  this.application.products.fruits.push({
+                    id: prod.product_id,
+                    name: prod.product_name,
+                    price: prod.product_price,
+                    amountToBuy: 0,
+                    image: prod.p_image,
+                    quantity: prod.quantity
+                  });
+                } else if (prod.category == "meat") {
+                  this.application.products.meats.push({
+                    id: prod.product_id,
+                    name: prod.product_name,
+                    price: prod.product_price,
+                    amountToBuy: 0,
+                    image: prod.p_image,
+                    quantity: prod.quantity
+                  });
+                } else {
+                  this.application.products.drinks.push({
+                    id: prod.product_id,
+                    name: prod.product_name,
+                    price: prod.product_price,
+                    amountToBuy: 0,
+                    image: prod.p_image,
+                    quantity: prod.quantity
+                  });
+                }
+              });
+            })
+            .catch(error => {
+              console.log(error);
+            });
         })
         .catch(error => {
           console.log(error);
@@ -279,7 +319,7 @@ export default {
         image: product.image
       });
     },
-    addProduct(product) {
+    addProductToCart(product) {
       if (product.amountToBuy == 0) {
         this.note = "Please enter amount to add.";
         this.$bvModal.show("confirm" + product.id);
@@ -342,53 +382,69 @@ export default {
         product_quantity: this.newProduct.product_quantity
       });
       if (response.data) {
-        // this.application.products.fruits = [];
-        // this.application.products.meats = [];
-        // this.application.products.drinks = [];
-        // axios
-        //   .get("http://localhost:3000/getAllProducts")
-        //   .then(response => {
-        //     console.log(response.data);
+        this.application.products.fruits = [];
+        this.application.products.meats = [];
+        this.application.products.drinks = [];
+        axios
+          .get("http://localhost:3000/getAllProducts")
+          .then(response => {
+            console.log(response.data);
 
-        //     let p = response.data;
+            let p = response.data;
 
-        //     p.forEach(prod => {
-        //       if (prod.category == "fruit") {
-        //         this.application.products.fruits.push({
-        //           id: prod.product_id,
-        //           name: prod.product_name,
-        //           price: prod.product_price,
-        //           amountToBuy: 0,
-        //           image: prod.p_image,
-        //           quantity: prod.quantity
-        //         });
-        //       } else if (prod.category == "meat") {
-        //         this.application.products.meats.push({
-        //           id: prod.product_id,
-        //           name: prod.product_name,
-        //           price: prod.product_price,
-        //           amountToBuy: 0,
-        //           image: prod.p_image,
-        //           quantity: prod.quantity
-        //         });
-        //       } else {
-        //         this.application.products.drinks.push({
-        //           id: prod.product_id,
-        //           name: prod.product_name,
-        //           price: prod.product_price,
-        //           amountToBuy: 0,
-        //           image: prod.p_image,
-        //           quantity: prod.quantity
-        //         });
-        //       }
-        //     });
-        //   })
-        //   .catch(error => {
-        //     console.log(error);
-        //   });
+            p.forEach(prod => {
+              if (prod.category == "fruit") {
+                this.application.products.fruits.push({
+                  id: prod.product_id,
+                  name: prod.product_name,
+                  price: prod.product_price,
+                  amountToBuy: 0,
+                  image: prod.p_image,
+                  quantity: prod.quantity
+                });
+              } else if (prod.category == "meat") {
+                this.application.products.meats.push({
+                  id: prod.product_id,
+                  name: prod.product_name,
+                  price: prod.product_price,
+                  amountToBuy: 0,
+                  image: prod.p_image,
+                  quantity: prod.quantity
+                });
+              } else {
+                this.application.products.drinks.push({
+                  id: prod.product_id,
+                  name: prod.product_name,
+                  price: prod.product_price,
+                  amountToBuy: 0,
+                  image: prod.p_image,
+                  quantity: prod.quantity
+                });
+              }
+            });
+          })
+          .catch(error => {
+            console.log(error);
+          });
 
+        this.newProduct = null;
         this.$bvModal.hide("addNewProduct");
       } else {
+      }
+    },
+    async updateProduct() {
+      console.log(this.warehouse);
+      const response = await AuthenticationService.updateProduct({
+        product_name: this.newProduct.name,
+        product_price: this.newProduct.price,
+        category: this.newProduct.category,
+        p_weight: this.newProduct.weight,
+        p_image: this.newProduct.image,
+        product_id: this.newProduct.id,
+      });
+      if (response.data) {
+        this.newProduct = null;
+        this.$bvModal.hide('editStock'+product.id);
       }
     }
   },

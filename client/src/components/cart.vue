@@ -30,44 +30,52 @@
       </tbody>
     </table>
     <div class="row">
-      <div class="col-5">
-        <div class="float-right">
-          <h4>Subtotal:</h4>
-        </div>
-      </div>
-      <div class="col-3">
-        <div class="float-left">
-          <h4>${{subTotal}}</h4>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-5">
-        <div class="float-right">
-          <h4>Tax:</h4>
-        </div>
-      </div>
-      <div class="col-3">
-        <div class="float-left">
-          <h4>${{tax}}</h4> <h6>(Tax vary depending on state)</h6>
-        </div>
-      </div>
-    </div>
-    <hr>
-    <div class="row">
-      <div class="col-5">
-        <div class="float-right">
-          <h2>Total:</h2>
-        </div>
-      </div>
-      <div class="col-3">
-        <div class="float-left">
-          <h2>${{subTotal+tax}}</h2>
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="float-left">
-          <b-button @click="checkout()">CHECKOUT</b-button>
+      <div class="col">
+        <div class="float-right" v-if="!application.userInfo.admin">
+          <hr />
+          <div class="row">
+            <div class="col-5">
+              <div class="float-right">
+                <h4>Subtotal:</h4>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="float-left">
+                <h4>${{subTotal}}</h4>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-5">
+              <div class="float-right">
+                <h4>Tax:</h4>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="float-left">
+                <h4>${{tax}}</h4>
+                <h6>(Tax vary depending on state)</h6>
+              </div>
+            </div>
+          </div>
+          <hr />
+          <div class="row">
+            <div class="col-5">
+              <div class="float-right">
+                <h2>Total:</h2>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="float-left">
+                <h2>${{subTotal+tax}}</h2>
+              </div>
+            </div>
+          </div>
+          <div class="row float-right mt-5 mb-5 mr-5">
+            <div class="col">
+              <b-button @click="checkout()">CHECKOUT</b-button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -185,9 +193,11 @@ export default {
       return total;
     },
     tax: function() {
-      let rate = stateTaxMap.get(this.application.userInfo.primaryAddress.state)
-      
-      if(this.authenticated) return this.subTotal * rate;
+      let rate = stateTaxMap.get(
+        this.application.userInfo.primaryAddress.state
+      );
+
+      if (this.authenticated) return this.subTotal * rate;
       else return 0;
     }
   }
