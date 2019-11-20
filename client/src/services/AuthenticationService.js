@@ -20,6 +20,9 @@ export default {
     },
     updateProduct(credentials) {
         return Api().put('updateProduct', credentials)
+    },
+    addOrder(credentials) {
+        return Api().post('addOrder', credentials)
     }
 }
 

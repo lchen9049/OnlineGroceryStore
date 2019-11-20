@@ -84,6 +84,8 @@
 
 <script>
 import NewApp from "../model/newApplication";
+import AuthenticationService from "@/services/AuthenticationService";
+import axios from "axios";
 let stateTaxMap = new Map();
 stateTaxMap
   .set("AL", 0.1)
@@ -180,7 +182,36 @@ export default {
       this.application.cart.splice(index, 1);
       this.$bvModal.show("confirm" + product.id);
     },
-    checkout() {}
+    async checkout() {
+      if (this.application.cart.length == 0) {
+      } else {
+        console.log(this.application.userInfo.primaryAddress);
+        console.log(this.application.userInfo.primaryPayment);
+
+        let prods = []
+        this.application.cart.forEach(p => {
+          console.log(p);
+          prods.push({product_id: p.id, price_amount: parseInt(p.added)*parseFloat(p.price), product_quantity: p.added, product_leftover: p.quantity})
+          console.log(prods[prods.length-1])
+        })
+
+        const response = await AuthenticationService.addOrder({
+          username: this.application.userInfo.username,
+          delivery_address: this.application.userInfo.primaryAddress.address + ' ' + this.application.userInfo.primaryAddress.city + ' ' + this.application.userInfo.primaryAddress.state + ' ' + this.application.userInfo.primaryAddress.zipcode,
+          card_number: this.application.userInfo.primaryPayment.cardNumber,
+          card_pin: this.application.userInfo.primaryPayment.cardPin,
+          billing_address: this.application.userInfo.primaryPayment.billingAddres,
+          order_total: this.subTotal + this.tax,
+          products: prods,
+        });
+        console.log(response.data)
+        if (response.data) {
+         
+        } else {
+          
+        }
+      }
+    }
   },
   computed: {
     subTotal: function() {

@@ -4,11 +4,11 @@
       <div class="row">
         <div class="col-4">
           First Name
-          <b-form-input :disabled="!edit" v-model="application.userInfo.firstName" />
+          <b-form-input :disabled="true" v-model="application.userInfo.firstName" />
         </div>
         <div class="col-4">
           Last Name
-          <b-form-input :disabled="!edit" v-model="application.userInfo.lastName" />
+          <b-form-input :disabled="true" v-model="application.userInfo.lastName" />
         </div>
         <div class="col-4">
           Username
@@ -133,7 +133,7 @@
           <div class="row mt-2">
             <div class="col">State</div>
             <div class="col">
-              <b-form-input id="cardState" v-model="newCard.state"></b-form-input>
+              <b-form-select id="cardState" :options="states" v-model="newCard.state"></b-form-select>
             </div>
           </div>
           <div class="row mt-3">
@@ -168,11 +168,11 @@
       <div class="row">
         <div class="col-4">
           First Name
-          <b-form-input :disabled="!edit" v-model="application.staffInfo.firstName" />
+          <b-form-input :disabled="true" v-model="application.staffInfo.firstName" />
         </div>
         <div class="col-4">
           Last Name
-          <b-form-input :disabled="!edit" v-model="application.staffInfo.lastName" />
+          <b-form-input :disabled="true" v-model="application.staffInfo.lastName" />
         </div>
         <div class="col-4">
           Username
@@ -182,30 +182,26 @@
       <div class="row mt-2">
         <div class="col-4">
           Job Title
-          <b-form-input :disabled="!edit" v-model="application.staffInfo.jobTitle" />
+          <b-form-input :disabled="true" v-model="application.staffInfo.jobTitle" />
         </div>
         <div class="col-4">
           Salary
-          <b-form-input :disabled="!edit" v-model="application.staffInfo.salary" />
+          <b-form-input :disabled="true" v-model="application.staffInfo.salary" />
         </div>
         <div class="col-4">
           Password
-          <b-form-input :disabled="!edit" v-model="application.staffInfo.passWord" />
+          <b-form-input :disabled="true" v-model="application.staffInfo.passWord" />
         </div>
       </div>
       <div class="row mt-2">
         <div class="col-8">
           Address
-          <b-form-input :disabled="!edit" v-model="application.staffInfo.address" />
+          <b-form-input :disabled="true" v-model="application.staffInfo.address" />
         </div>
       </div>
 
       <div class="row mt-5">
-        <div class="col-4" v-if="!edit">
-          <b-button @click="edit=true">Edit Information</b-button>
-        </div>
-        <div class="col-4" v-if="edit">
-          <b-button @click="edit=false;updateInformation()">Save Information</b-button>
+        <div class="col-4">
         </div>
         <div class="col">
           <div class="float-right">
@@ -254,7 +250,7 @@ export default {
     updateInformation() {},
     async addPayment() {
       const response = await AuthenticationService.addPayment({
-        username: this.application.userInfo.username,
+        username: this.application.userInfo.userName,
         billing_address:
           this.newCard.billingAddress +
           " " +
@@ -267,24 +263,35 @@ export default {
         card_pin: this.newCard.cardPin
       });
       console.log(response.data);
-      this.application.userInfo.creditCards.push({
-        value: {
-          cardNumber: this.newCard.cardNumber,
-          cardPin: this.newCard.cardPin,
-          billingAddres:
-            this.newCard.billingAddress +
-            " " +
-            this.newCard.city +
-            " " +
-            this.newCard.state +
-            " " +
-            this.newCard.zipCode
-        },
-        text: this.newCard.cardNumber
-      });
-      this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[
-        this.application.userInfo.creditCards.length - 1
-      ].value;
+      if (response.data) {
+        this.application.userInfo.creditCards.push({
+          value: {
+            cardNumber: this.newCard.cardNumber,
+            cardPin: this.newCard.cardPin,
+            billingAddres:
+              this.newCard.billingAddress +
+              " " +
+              this.newCard.city +
+              " " +
+              this.newCard.state +
+              " " +
+              this.newCard.zipCode
+          },
+          text: this.newCard.cardNumber
+        });
+        this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[
+          this.application.userInfo.creditCards.length - 1
+        ].value;
+        this.newCard = {
+          cardNumber: null,
+          cardPin: null,
+          billingAddress: null,
+          city: null,
+          zipCode: null,
+          state: null
+        };
+        this.$bvModal.hide("addInfo");
+      }
     },
     async addAddress() {
       const response = await AuthenticationService.addAddress({
@@ -295,26 +302,34 @@ export default {
         state: this.newAddress.state
       });
       console.log(response.data);
-      this.application.userInfo.address.push({
-        value: {
-          address: this.newAddress.address,
-          city: this.newAddress.city,
-          zipcode: this.newAddress.zipCode,
-          state: this.newAddress.state
-        },
-        text:
-          this.newAddress.address +
-          " " +
-          this.newAddress.city +
-          " " +
-          this.newAddress.state +
-          " " +
-          this.newAddress.zipCode
-      });
-      this.application.userInfo.primaryAddress = this.application.userInfo.address[
-        this.application.userInfo.address.length - 1
-      ].value;
-      console.log(this.application.userInfo.address);
+      if (response.data) {
+        this.application.userInfo.address.push({
+          value: {
+            address: this.newAddress.address,
+            city: this.newAddress.city,
+            zipcode: this.newAddress.zipCode,
+            state: this.newAddress.state
+          },
+          text:
+            this.newAddress.address +
+            " " +
+            this.newAddress.city +
+            " " +
+            this.newAddress.state +
+            " " +
+            this.newAddress.zipCode
+        });
+        this.application.userInfo.primaryAddress = this.application.userInfo.address[
+          this.application.userInfo.address.length - 1
+        ].value;
+        this.newAddress = {
+          address: null,
+          city: null,
+          zipCode: null,
+          state: null
+        };
+        this.$bvModal.hide("addInfo");
+      }
     }
   },
   watch: {
