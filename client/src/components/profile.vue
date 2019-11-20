@@ -25,13 +25,15 @@
           />
         </div>
 
-        <div class="col-2 mt-4">
+        <div class="col mt-4">
           <font-awesome-icon
-            class="mr-5"
             size="2x"
             @click="addAdress=true;$bvModal.show('addInfo');"
             icon="plus-circle"
           />
+        </div>
+        <div class="col mt-4">
+          <font-awesome-icon class="mr-5" size="2x" @click="deleteAddress();" icon="trash-alt" />
         </div>
       </div>
       <div class="row mt-4">
@@ -45,7 +47,6 @@
         </div>
         <div class="col-2 mt-4">
           <font-awesome-icon
-            class="mr-5"
             size="2x"
             @click="addAdress=false;$bvModal.show('addInfo');"
             icon="plus-circle"
@@ -65,6 +66,15 @@
           </div>
         </div>
       </div>
+
+      <b-modal id="delete" hide-footer :title="addAdress ? 'Delete Address' : 'Delete Payment'">
+        <div v-if="addAdress">
+          Please add an address before deleting this.
+        </div>
+        <div v-else>
+          <div v-for="(payment, index) in application.userInfo.creditCards" :key="index">{{payment}}</div>
+        </div>
+      </b-modal>
 
       <b-modal id="addInfo" hide-footer :title="addAdress ? 'New Address' : 'New Payment'">
         <div v-if="addAdress">
@@ -201,8 +211,7 @@
       </div>
 
       <div class="row mt-5">
-        <div class="col-4">
-        </div>
+        <div class="col-4"></div>
         <div class="col">
           <div class="float-right">
             <b-button @click="logout()">Log Out</b-button>
@@ -331,15 +340,22 @@ export default {
         this.$bvModal.hide("addInfo");
       }
     },
-    async deleteAddress(address) {
-      const response = await AuthenticationService.deleteAddress({
-        username: this.application.userInfo.userName,
-        address: this.address.address,
-        city: this.address.city,
-        zipcode: this.address.zipCode,
-        state: this.address.state
-      });
-      console.log(response.data);
+    async deleteAddress() {
+      let address = this.application.userInfo.primaryAddress;
+      console.log(address);
+      if (this.application.userInfo.address.length == 1) {
+        this.$bvModal.show('delete');
+      } else {
+        const response = await AuthenticationService.deleteAddress({
+          username: this.application.userInfo.userName,
+          address: address.address,
+          city: address.city,
+          zipcode: address.zipCode,
+          state: address.state
+        }); 
+        console.log(response.data);
+      }
+     
     }
   },
   watch: {
