@@ -276,34 +276,40 @@ app.put('/updateProduct', (req, res) => {
 
 // *******************  Add Order and Contains ***************** // 
 app.post('/addOrder', (req, res) => {
+    const id = ID();
     for (var i = 0; i < req.body.products.length; i++) {
-        var id = ID();
-        client.query('INSERT INTO Order (order_id, username, order_status, delivery_address, card_number, card_pin, billing_address, order_total) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', 
-                    [id, req.body.username, 'pending', req.body.delivery_address, req.body.card_number, req.body.card_pin, req.body.billing_address, req.body.order_total], (err, result) => {
+        var productArr = req.body.products[i];
+        if (i == 0) {
+            client.query('INSERT INTO Orders (order_id, username, order_status, delivery_address, card_number, card_pin, billing_address, order_total) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', 
+            [id, req.body.username, 'pending', req.body.delivery_address, req.body.card_number, req.body.card_pin, req.body.billing_address, req.body.order_total], (err, result) => {
+                if (err) {
+                    res.send(false);
+                    return console.log('Add Order FAILED - before adding to TABLE CONTAINS', err);
+                } 
+            })
+        }
+        
+
+        console.log("CURRENT: " + i + ': ' + productArr.product_id)
+        client.query('INSERT INTO contain (order_id, product_id, price_amount, product_quantity) VALUES ($1, $2, $3, $4)', 
+                    [id, productArr.product_id, productArr.price_amount, productArr.product_quantity], (err, result) => {
             if (err) {
-                res.send(false);
-                return console.log('Add Order FAILED - before adding to TABLE CONTAINS', err);
-            } else {
-                client.query('INSERT INTO Contain (order_id, product_id, price_amount, product_quantity) VALUES ($1, $2, $3, $4)', [id, req.body.products[i].product_id, req.body.products[i].price_amount, req.body.products[i].product_quantity], (err, result) => {
-                    if (err) {
-                        return console.log('FAILED TO INSERT CONTAINS TABLE', err);
-                    } else {
-                        client.query('UPDATE Stocks SET quantity=$1 WHERE product_id = $2', [req.body.product_leftover], (err, result) => {
-                            if (err) {
-                                return console.log('FAILED TO UPDATE STOCKS QUANTITY AFTER INSERT INTO CONTAIN', err);
-                            }
-                        })
-                    }
-                    console.log('ADD Order Successfully');
-                })
+                // res.send(false)
+                return console.log('FAILED TO INSERT CONTAINS TABLE', err);
+            } 
+        })
+
+        client.query('UPDATE Stocks SET quantity=$1 WHERE product_id = $2', [req.body.product_leftover, req.body.product_id], (err, result) => {
+            if (err) {
+                // res.send(false)
+                return console.log('FAILED TO UPDATE STOCKS QUANTITY AFTER INSERT INTO CONTAIN', err);
             }
-        });
+        })     
     }
 
     res.send(true);
     return console.log('ALL ORDERS ADDED SUCCESSFULLY')
     
-
 })
 
 // ****************  Get all products ***************//
@@ -341,6 +347,12 @@ app.get('/getAllOrders', (req, res) => {
         return console.log('RETURNED ALL ORDER');
     })
 })
+
+// ****************  Delete Payment ***************//
+
+
+// ****************  Delete Address ***************//
+
 
 
 app.listen(3000, function() {
