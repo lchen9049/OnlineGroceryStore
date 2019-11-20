@@ -360,6 +360,12 @@ app.get('/getAllOrders', (req, res) => {
     })
 })
 
+// ****************  Delete Payment ***************//
+
+
+// ****************  Delete Address ***************//
+
+
 
 app.listen(3000, function() {
     console.log('Server is running on 3000');
