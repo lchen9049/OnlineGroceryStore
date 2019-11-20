@@ -330,6 +330,30 @@ app.get('/getAllProducts', (req, res) => {
     })
 })
 
+// ****************  Get all orders ***************//
+
+app.get('/getAllOrders', (req, res) => {
+    var orderData = []
+    client.query('SELECT * FROM Orders', (err, result) => {
+        if (err) {
+            res.send(false);
+            return console.log('ERROR ADDING ORDERS TO DATA []', err);
+        }
+        orderData.push(result.rows);
+    })
+
+    client.query('SELECT * FROM contain', (err, result) => {
+        if (err) {
+            res.send(false)
+            return console.log('ERROR ADDING CONTAINS TO DATA[]', err)
+        }
+            
+        orderData.push(result.rows);
+        res.send(orderData);
+        return console.log('RETURNED ALL ORDER');
+    })
+})
+
 
 app.listen(3000, function() {
     console.log('Server is running on 3000');
