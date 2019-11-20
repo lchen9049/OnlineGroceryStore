@@ -187,7 +187,7 @@ app.post('/addAddress', (req, res) => {
 
 // ******************* Add a new payment method to an existing user ***************** // 
 app.post('/addPayment', (req, res) => {
-    client.query('INSERT INTO Card (billing_address, card_number, card_pin) VALUES ($1, $2, $3)', [req.body.billing_address, req.body.card_number, req.body.card_pin], (err, result) => {
+    client.query('INSERT INTO Card (username, billing_address, card_number, card_pin) VALUES ($1, $2, $3, $4)', [req.body.username, req.body.billing_address, req.body.card_number, req.body.card_pin], (err, result) => {
         if (err) {
             res.send(false);
             return console.log('ADD PAYMENT FAILED');
