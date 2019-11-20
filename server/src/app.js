@@ -361,9 +361,29 @@ app.get('/getAllOrders', (req, res) => {
 })
 
 // ****************  Delete Payment ***************//
+app.delete('/deletePayment', (req, res) => {
+    client.query('DELETE FROM Card where username = $1 and card_number = $2', [req.body.username, req.body.card_number], (err, result) => {
+        if (err) {
+            res.send(false);
+            return console.log('ERROR DELETING PAYMENT');
+        }
+
+        res.send(true);
+    })
+})
 
 
 // ****************  Delete Address ***************//
+app.delete('/deleteAddress', (req, res) => {
+    client.query('DELETE FROM Address where username = $1 and address = $2', [req.body.username, req.body.address], (err, result) => {
+        if (err) {
+            res.send(false);
+            return console.log('ERROR DELETING ADDRESS');
+        }
+
+        res.send(true);
+    })
+})
 
 
 
