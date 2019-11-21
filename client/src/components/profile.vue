@@ -85,7 +85,12 @@
         <div v-else>Please add a payment before deleting this.</div>
       </b-modal>
 
-      <b-modal id="addInfo" hide-footer :title="addAdress ? 'New Address' : 'New Payment'">
+      <b-modal
+        id="addInfo"
+        @show="resetFields()"
+        hide-footer
+        :title="addAdress ? 'New Address' : 'New Payment'"
+      >
         <div v-if="addAdress">
           <div class="row">
             <div class="col">Address</div>
@@ -262,6 +267,22 @@ export default {
     };
   },
   methods: {
+    resetFields() {
+      this.newAddress = {
+        address: null,
+        city: null,
+        zipCode: null,
+        state: null
+      };
+      this.newCard = {
+        cardNumber: null,
+        cardPin: null,
+        billingAddress: null,
+        city: null,
+        zipCode: null,
+        state: null
+      };
+    },
     logout() {
       this.$parent.logout();
     },
@@ -359,13 +380,16 @@ export default {
           )
           .then(response => {
             let index = 0;
-            for (let i = 0;i < this.application.userInfo.address.length;i++) {
-              if (this.application.userInfo.address[i].value.address == address.address) {
+            for (let i = 0; i < this.application.userInfo.address.length; i++) {
+              if (
+                this.application.userInfo.address[i].value.address ==
+                address.address
+              ) {
                 index = i;
               }
             }
-            this.application.userInfo.address.splice(index,1);
-            this.application.userInfo.primaryAddress = this.application.userInfo.address[0].value
+            this.application.userInfo.address.splice(index, 1);
+            this.application.userInfo.primaryAddress = this.application.userInfo.address[0].value;
           })
           .catch(error => {
             console.log(error);
@@ -383,13 +407,20 @@ export default {
           )
           .then(response => {
             let index = 0;
-            for (let i = 0;i < this.application.userInfo.creditCards.length;i++) {
-              if (this.application.userInfo.creditCards[i].value.cardNumber == payment.cardNumber) {
+            for (
+              let i = 0;
+              i < this.application.userInfo.creditCards.length;
+              i++
+            ) {
+              if (
+                this.application.userInfo.creditCards[i].value.cardNumber ==
+                payment.cardNumber
+              ) {
                 index = i;
               }
             }
-            this.application.userInfo.creditCards.splice(index,1);
-            this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[0].value
+            this.application.userInfo.creditCards.splice(index, 1);
+            this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[0].value;
           })
           .catch(error => {
             console.log(error);

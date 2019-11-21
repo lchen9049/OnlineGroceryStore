@@ -116,7 +116,7 @@
       <div class="row">
         <div class="col">
           <div class="float-right">
-            <b-button @click="$bvModal.show('addNewProduct');newProduct=new newProd()">Add New Stock</b-button>
+            <b-button @click="$bvModal.show('addNewProduct');setNewProd()">Add New Stock</b-button>
           </div>
         </div>
       </div>
@@ -257,51 +257,14 @@ export default {
     }
   },
   methods: {
+    setNewProd() {
+      this.newProduct = new newProd();
+    },
     deleteProduct(product) {
       axios
         .delete(`http://localhost:3000/deleteProduct/${product.id}`)
         .then(response => {
-          this.application.products.fruits = [];
-          this.application.products.meats = [];
-          this.application.products.drinks = [];
-          axios
-            .get("http://localhost:3000/getAllProducts")
-            .then(response => {
-              let p = response.data;
-              p.forEach(prod => {
-                if (prod.category == "fruit") {
-                  this.application.products.fruits.push({
-                    id: prod.product_id,
-                    name: prod.product_name,
-                    price: prod.product_price,
-                    amountToBuy: 0,
-                    image: prod.p_image,
-                    quantity: prod.quantity
-                  });
-                } else if (prod.category == "meat") {
-                  this.application.products.meats.push({
-                    id: prod.product_id,
-                    name: prod.product_name,
-                    price: prod.product_price,
-                    amountToBuy: 0,
-                    image: prod.p_image,
-                    quantity: prod.quantity
-                  });
-                } else {
-                  this.application.products.drinks.push({
-                    id: prod.product_id,
-                    name: prod.product_name,
-                    price: prod.product_price,
-                    amountToBuy: 0,
-                    image: prod.p_image,
-                    quantity: prod.quantity
-                  });
-                }
-              });
-            })
-            .catch(error => {
-              console.log(error);
-            });
+          this.getAllProduct();
         })
         .catch(error => {
           console.log(error);
@@ -379,56 +342,16 @@ export default {
         warehouse_id: this.newProduct.warehouse.id,
         product_quantity: this.newProduct.product_quantity
       });
+      console.log(response.data)
       if (response.data) {
-        this.application.products.fruits = [];
-        this.application.products.meats = [];
-        this.application.products.drinks = [];
-        axios
-          .get("http://localhost:3000/getAllProducts")
-          .then(response => {
-            let p = response.data;
-
-            p.forEach(prod => {
-              if (prod.category == "fruit") {
-                this.application.products.fruits.push({
-                  id: prod.product_id,
-                  name: prod.product_name,
-                  price: prod.product_price,
-                  amountToBuy: 0,
-                  image: prod.p_image,
-                  quantity: prod.quantity
-                });
-              } else if (prod.category == "meat") {
-                this.application.products.meats.push({
-                  id: prod.product_id,
-                  name: prod.product_name,
-                  price: prod.product_price,
-                  amountToBuy: 0,
-                  image: prod.p_image,
-                  quantity: prod.quantity
-                });
-              } else {
-                this.application.products.drinks.push({
-                  id: prod.product_id,
-                  name: prod.product_name,
-                  price: prod.product_price,
-                  amountToBuy: 0,
-                  image: prod.p_image,
-                  quantity: prod.quantity
-                });
-              }
-            });
-          })
-          .catch(error => {
-            console.log(error);
-          });
-
+        this.getAllProduct();
         this.newProduct = null;
         this.$bvModal.hide("addNewProduct");
       } else {
       }
     },
     async updateProduct() {
+      console.log(this.newProduct);
       const response = await AuthenticationService.updateProduct({
         product_name: this.newProduct.name,
         product_price: this.newProduct.price,
@@ -438,9 +361,62 @@ export default {
         product_id: this.newProduct.id
       });
       if (response.data) {
-        this.newProduct = null;
-        this.$bvModal.hide("editStock" + product.id);
+        this.$bvModal.hide("editStock" + this.newProduct.id);
+        this.getAllProduct();
       }
+    },
+    getAllProduct() {
+      this.application.products.fruits = [];
+      this.application.products.meats = [];
+      this.application.products.drinks = [];
+      axios
+        .get("http://localhost:3000/getAllProducts")
+        .then(response => {
+          let p = response.data;
+
+          p.forEach(prod => {
+            if (prod.category == "fruit") {
+              this.application.products.fruits.push({
+                id: prod.product_id,
+                name: prod.product_name,
+                price: prod.product_price,
+                amountToBuy: 0,
+                image: prod.p_image,
+                quantity: prod.quantity,
+                weight: prod.p_weight,
+                category: prod.category,
+                warehouse: prod.warehouse_id
+              });
+            } else if (prod.category == "meat") {
+              this.application.products.meats.push({
+                id: prod.product_id,
+                name: prod.product_name,
+                price: prod.product_price,
+                amountToBuy: 0,
+                image: prod.p_image,
+                quantity: prod.quantity,
+                weight: prod.p_weight,
+                category: prod.category,
+                warehouse: prod.warehouse_id
+              });
+            } else {
+              this.application.products.drinks.push({
+                id: prod.product_id,
+                name: prod.product_name,
+                price: prod.product_price,
+                amountToBuy: 0,
+                image: prod.p_image,
+                quantity: prod.quantity,
+                weight: prod.p_weight,
+                category: prod.category,
+                warehouse: prod.warehouse_id
+              });
+            }
+          });
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
   },
   computed: {

@@ -270,6 +270,7 @@ app.put('/updateProduct', (req, res) => {
                 res.send(false);
                 return console.log('FAILED TO Update PRODUCT!')
             }
+            res.send(true);
             console.log("SUCCESSFULLY UPDATED A NEW PRODUCT!")
         });
 })
