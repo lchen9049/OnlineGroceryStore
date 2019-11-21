@@ -33,7 +33,12 @@
           />
         </div>
         <div class="col mt-4">
-          <font-awesome-icon class="mr-5" size="2x" @click="addAdress=true;deleteAddress();" icon="trash-alt" />
+          <font-awesome-icon
+            class="mr-5"
+            size="2x"
+            @click="addAdress=true;deleteAddress();"
+            icon="trash-alt"
+          />
         </div>
       </div>
       <div class="row mt-4">
@@ -53,7 +58,12 @@
           />
         </div>
         <div class="col mt-4">
-          <font-awesome-icon class="mr-5" size="2x" @click="addAdress=false;deletePayment();" icon="trash-alt" />
+          <font-awesome-icon
+            class="mr-5"
+            size="2x"
+            @click="addAdress=false;deletePayment();"
+            icon="trash-alt"
+          />
         </div>
       </div>
       <div class="row mt-5">
@@ -71,12 +81,8 @@
       </div>
 
       <b-modal id="delete" hide-footer :title="addAdress ? 'Delete Address' : 'Delete Payment'">
-        <div v-if="addAdress">
-          Please add an address before deleting this.
-        </div>
-        <div v-else>
-          Please add a payment before deleting this.
-        </div>
+        <div v-if="addAdress">Please add an address before deleting this.</div>
+        <div v-else>Please add a payment before deleting this.</div>
       </b-modal>
 
       <b-modal id="addInfo" hide-footer :title="addAdress ? 'New Address' : 'New Payment'">
@@ -274,7 +280,6 @@ export default {
         card_number: this.newCard.cardNumber,
         card_pin: this.newCard.cardPin
       });
-      console.log(response.data);
       if (response.data) {
         this.application.userInfo.creditCards.push({
           value: {
@@ -313,7 +318,6 @@ export default {
         zipcode: this.newAddress.zipCode,
         state: this.newAddress.state
       });
-      console.log(response.data);
       if (response.data) {
         this.application.userInfo.address.push({
           value: {
@@ -344,33 +348,48 @@ export default {
       }
     },
     async deleteAddress() {
+      ///deleteAddress/:username/:address
       let address = this.application.userInfo.primaryAddress;
-      console.log(address);
       if (this.application.userInfo.address.length == 1) {
-        this.$bvModal.show('delete');
+        this.$bvModal.show("delete");
       } else {
-        const response = await AuthenticationService.deleteAddress({
-          username: this.application.userInfo.userName,
-          address: address.address,
-        }); 
-        console.log(response.data);
+        axios
+          .delete(
+            `http://localhost:3000/deleteAddress/${this.application.userInfo.userName}/${address.address}`
+          )
+          .then(response => {
+            this.application.userInfo.primaryAddress = this.application.userInfo.address[0];
+          })
+          .catch(error => {
+            console.log(error);
+          });
       }
     },
     async deletePayment() {
       let payment = this.application.userInfo.primaryPayment;
       if (this.application.userInfo.creditCards.length == 1) {
-        this.$bvModal.show('delete');
+        this.$bvModal.show("delete");
       } else {
-        //req.body.username, req.body.card_number
-        console.log(this.application.userInfo.userName)
-        console.log(payment.cardNumber)
-        const response = await AuthenticationService.deletePayment({
-          username: this.application.userInfo.userName,
-          card_number: payment.cardNumber,
-        }); 
-        console.log(response.data);
+        axios
+          .delete(
+            `http://localhost:3000/deletePayment/${this.application.userInfo.userName}/${payment.cardNumber}`
+          )
+          .then(response => {
+            let index = 0;
+            for (let i = 0;i < this.application.userInfo.creditCards.length;i++) {
+              if (this.application.userInfo.creditCards[i].value.cardNumber == payment.cardNumber) {
+                index = i;
+              }
+            }
+            console.log(this.application.userInfo.creditCards);
+            this.application.userInfo.creditCards.splice(index,1);
+            console.log(this.application.userInfo.creditCards);
+            this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[0]
+          })
+          .catch(error => {
+            console.log(error);
+          });
       }
-     
     }
   },
   watch: {

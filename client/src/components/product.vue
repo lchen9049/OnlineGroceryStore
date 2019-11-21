@@ -215,7 +215,7 @@ import AuthenticationService from "@/services/AuthenticationService";
 import axios from "axios";
 import NewApp from "../model/newApplication";
 import EditProduct from "./editProduct";
-import newProd from "../model/product"
+import newProd from "../model/product";
 export default {
   name: "product",
   components: { EditProduct },
@@ -267,7 +267,6 @@ export default {
           axios
             .get("http://localhost:3000/getAllProducts")
             .then(response => {
-              console.log(response.data);
               let p = response.data;
               p.forEach(prod => {
                 if (prod.category == "fruit") {
@@ -355,7 +354,6 @@ export default {
       });
     },
     async addStock(product) {
-      console.log(this.warehouse);
       const response = await AuthenticationService.addStock({
         product_quantity:
           parseInt(this.amountToAdd) + parseInt(product.quantity),
@@ -388,8 +386,6 @@ export default {
         axios
           .get("http://localhost:3000/getAllProducts")
           .then(response => {
-            console.log(response.data);
-
             let p = response.data;
 
             p.forEach(prod => {
@@ -433,18 +429,17 @@ export default {
       }
     },
     async updateProduct() {
-      console.log(this.warehouse);
       const response = await AuthenticationService.updateProduct({
         product_name: this.newProduct.name,
         product_price: this.newProduct.price,
         category: this.newProduct.category,
         p_weight: this.newProduct.weight,
         p_image: this.newProduct.image,
-        product_id: this.newProduct.id,
+        product_id: this.newProduct.id
       });
       if (response.data) {
         this.newProduct = null;
-        this.$bvModal.hide('editStock'+product.id);
+        this.$bvModal.hide("editStock" + product.id);
       }
     }
   },

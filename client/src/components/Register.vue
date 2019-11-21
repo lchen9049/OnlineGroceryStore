@@ -38,12 +38,10 @@ export default {
         password: this.password
       })
       this.$router.go();
-      console.log(response.data)
     }
   },
   mounted() { // catch data from the route
     axios.get('http://localhost:3000').then((response) =>{
-      console.log(response.data);
       this.User =response.data;
     })
     .catch((error) => {

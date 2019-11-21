@@ -1,20 +1,20 @@
-const   express     = require('express'),
-        path        = require('path'),
-        bodyParser  = require('body-parser'),
-        cors        = require('cors'),
-        morgan      = require('morgan'),
-        app         = express();
+const express = require('express'),
+    path = require('path'),
+    bodyParser = require('body-parser'),
+    cors = require('cors'),
+    morgan = require('morgan'),
+    app = express();
 
 
 // For Connecting to PSQL
-const {Client} = require('pg');
+const { Client } = require('pg');
 const conString = "postgres://pevn_admin:pevn1234@localhost/g_stores";
 const client = new Client({
     connectionString: conString,
 });
 
 var ID = function () {
-    return Math.random().toString(36).substr(2,9);
+    return Math.random().toString(36).substr(2, 9);
 }
 
 
@@ -24,16 +24,16 @@ app.set('views', __dirname + '/views');
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use((cors()));
 client.connect();
 
 
 // ******************* Get all User ***************** // 
-app.get('/', function(req, res) {
-  
-    client.query('SELECT * FROM users', function(err, result) {
+app.get('/', function (req, res) {
+
+    client.query('SELECT * FROM users', function (err, result) {
         if (err) {
             return console.log('error running register query', err);
         }
@@ -49,8 +49,8 @@ app.get('/', function(req, res) {
 // insert data to psql when register route is called
 app.post('/register', (req, res) => {
     // need - username, password, isAdmin, 
-        // ->> isAdmin  = staff_name, s_address, salary, job title,
-        // ->> notAdmin = customer_name, phone_number, username, address, city, zipcode, state
+    // ->> isAdmin  = staff_name, s_address, salary, job title,
+    // ->> notAdmin = customer_name, phone_number, username, address, city, zipcode, state
     client.query('SELECT * FROM users WHERE username = $1', [req.body.username], (err, result) => {
         if (err) {
             return console.log('error running login query', err);
@@ -60,28 +60,28 @@ app.post('/register', (req, res) => {
             return console.log('USER ALREADY EXIST');
         }
         // add user
-        client.query('INSERT INTO users(username, pword, isAdmin) VALUES ($1, $2, $3)', 
-                    [req.body.username, req.body.pword, false], (err, result) => {
-                        if (err) {
-                            res.send(false);
-                        }
-                    });
-        
+        client.query('INSERT INTO users(username, pword, isAdmin) VALUES ($1, $2, $3)',
+            [req.body.username, req.body.pword, false], (err, result) => {
+                if (err) {
+                    res.send(false);
+                }
+            });
+
         // add Card
-        client.query('INSERT INTO Card (username, billing_address, card_number, card_pin) VALUES ($1, $2, $3, $4)', 
-                    [req.body.username, req.body.billing_address, req.body.card_number, req.body.card_pin]);
+        client.query('INSERT INTO Card (username, billing_address, card_number, card_pin) VALUES ($1, $2, $3, $4)',
+            [req.body.username, req.body.billing_address, req.body.card_number, req.body.card_pin]);
 
         // add customer
-        client.query('INSERT INTO customer(username, customer_name, phone_number) VALUES ($1, $2, $3)', 
-                    [req.body.username, req.body.customer_name, req.body.phone_number]);
+        client.query('INSERT INTO customer(username, customer_name, phone_number) VALUES ($1, $2, $3)',
+            [req.body.username, req.body.customer_name, req.body.phone_number]);
 
         // add address
-        client.query('INSERT INTO address(username, address, city, zipcode, state) VALUES ($1, $2, $3, $4, $5)', 
-                    [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state]);
-        
+        client.query('INSERT INTO address(username, address, city, zipcode, state) VALUES ($1, $2, $3, $4, $5)',
+            [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state]);
+
         res.send(true);
         return console.log("USER REGISTER SUCCESSFULLY");
-         
+
     });
 });
 
@@ -133,7 +133,7 @@ app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
                     res.send(userData);
                 })
 
-                
+
             } else { // customer
                 client.query('SELECT * FROM Customer where username = $1', [uname], (err, result) => {
                     if (err) {
@@ -160,27 +160,27 @@ app.get('/login/:uname/:pword/:isAdmin', (req, res) => {
                     res.send(userData);
                 })
 
-                
+
             }
-            
+
         } else {
             res.send(false);
         }
     });
-    
+
 })
 
 // ******************* Add a new address to an existing user ***************** // 
 app.post('/addAddress', (req, res) => {
-    client.query('INSERT INTO Address (username, address, city, zipcode, state) VALUES ($1, $2, $3, $4, $5)', 
-                [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state], (err, result) => {
-                    if (err) {
-                        res.send(false);
-                        return console.log('ADD ADDRESS FAILED');
-                    }
-                    res.send(true);
-                    return console.log('ADD ADDRESS FAILED');
-                });
+    client.query('INSERT INTO Address (username, address, city, zipcode, state) VALUES ($1, $2, $3, $4, $5)',
+        [req.body.username, req.body.address, req.body.city, req.body.zipcode, req.body.state], (err, result) => {
+            if (err) {
+                res.send(false);
+                return console.log('ADD ADDRESS FAILED');
+            }
+            res.send(true);
+            return console.log('ADD ADDRESS FAILED');
+        });
     // do whatever we want to do, can send back data as well
 })
 
@@ -201,30 +201,30 @@ app.post('/addPayment', (req, res) => {
 
 // ****************** Add Product ******************** //
 app.post('/addProduct', (req, res) => {
-    client.query('INSERT INTO Product (product_name, product_price, category, p_weight, p_image) VALUES ($1, $2, $3, $4, $5)', 
-                [req.body.product_name, req.body.product_price, req.body.category, req.body.p_weight, req.body.p_image], (err, result) => {
-                    if (err) {
-                        res.send(false);
-                        return console.log('FAILED TO ADD PRODUCT!')
-                    }
-                    console.log("SUCCESSFULLY ADDED A NEW PRODUCT!")
-                });
+    client.query('INSERT INTO Product (product_name, product_price, category, p_weight, p_image) VALUES ($1, $2, $3, $4, $5)',
+        [req.body.product_name, req.body.product_price, req.body.category, req.body.p_weight, req.body.p_image], (err, result) => {
+            if (err) {
+                res.send(false);
+                return console.log('FAILED TO ADD PRODUCT!')
+            }
+            console.log("SUCCESSFULLY ADDED A NEW PRODUCT!")
+        });
 
     client.query('SELECT * FROM Product', (err, result) => {
-        var p_id = result.rows[result.rows.length-1].product_id;
+        var p_id = result.rows[result.rows.length - 1].product_id;
         console.log(p_id);
-        client.query('INSERT INTO Stocks (warehouse_id, product_id, quantity) VALUES ($1, $2, $3)', 
-                    [req.body.warehouse_id, p_id, req.body.product_quantity], (err, result) => {
-                        if (err) {
-                            res.send(false);
-                            return console.log('ERROR IN ADDING NEW PRODUCT TO STOCKS', err);
-                        }
+        client.query('INSERT INTO Stocks (warehouse_id, product_id, quantity) VALUES ($1, $2, $3)',
+            [req.body.warehouse_id, p_id, req.body.product_quantity], (err, result) => {
+                if (err) {
+                    res.send(false);
+                    return console.log('ERROR IN ADDING NEW PRODUCT TO STOCKS', err);
+                }
 
-                        res.send(true);
-                        return console.log('ADDED NEW PRODUCT SUCCESSFULLY IN STOCKS');
-                    })
+                res.send(true);
+                return console.log('ADDED NEW PRODUCT SUCCESSFULLY IN STOCKS');
+            })
     })
-    
+
 })
 
 app.delete('/deleteProduct/:id', (req, res) => {
@@ -264,14 +264,14 @@ app.put('/updateQuantity', (req, res) => {
 
 // ****************** Update Product Pricing ********************* //
 app.put('/updateProduct', (req, res) => {
-    client.query('UPDATE Product SET product_name=$1, product_price=$2, category=$3, p_weight=$4, p_image=$5 WHERE product_id = $6', 
-                [req.body.product_name, req.body.product_price, req.body.category, req.body.p_weight, req.body.p_image, req.body.product_id], (err, result) => {
-                    if (err) {
-                        res.send(false);
-                        return console.log('FAILED TO Update PRODUCT!')
-                    }
-                    console.log("SUCCESSFULLY UPDATED A NEW PRODUCT!")
-                });
+    client.query('UPDATE Product SET product_name=$1, product_price=$2, category=$3, p_weight=$4, p_image=$5 WHERE product_id = $6',
+        [req.body.product_name, req.body.product_price, req.body.category, req.body.p_weight, req.body.p_image, req.body.product_id], (err, result) => {
+            if (err) {
+                res.send(false);
+                return console.log('FAILED TO Update PRODUCT!')
+            }
+            console.log("SUCCESSFULLY UPDATED A NEW PRODUCT!")
+        });
 })
 
 // *******************  Add Order and Contains ***************** // 
@@ -280,24 +280,24 @@ app.post('/addOrder', (req, res) => {
     for (var i = 0; i < req.body.products.length; i++) {
         var productArr = req.body.products[i];
         if (i == 0) {
-            client.query('INSERT INTO Orders (order_id, username, order_status, delivery_address, card_number, card_pin, billing_address, order_total) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', 
-            [id, req.body.username, 'pending', req.body.delivery_address, req.body.card_number, req.body.card_pin, req.body.billing_address, req.body.order_total], (err, result) => {
-                if (err) {
-                    res.send(false);
-                    return console.log('Add Order FAILED - before adding to TABLE CONTAINS', err);
-                } 
-            })
+            client.query('INSERT INTO Orders (order_id, username, order_status, delivery_address, card_number, card_pin, billing_address, order_total) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+                [id, req.body.username, 'pending', req.body.delivery_address, req.body.card_number, req.body.card_pin, req.body.billing_address, req.body.order_total], (err, result) => {
+                    if (err) {
+                        res.send(false);
+                        return console.log('Add Order FAILED - before adding to TABLE CONTAINS', err);
+                    }
+                })
         }
-        
+
 
         console.log("CURRENT: " + i + ': ' + productArr.product_id)
-        client.query('INSERT INTO contain (order_id, product_id, price_amount, product_quantity) VALUES ($1, $2, $3, $4)', 
-                    [id, productArr.product_id, productArr.price_amount, productArr.product_quantity], (err, result) => {
-            if (err) {
-                // res.send(false)
-                return console.log('FAILED TO INSERT CONTAINS TABLE', err);
-            } 
-        })
+        client.query('INSERT INTO contain (order_id, product_id, price_amount, product_quantity) VALUES ($1, $2, $3, $4)',
+            [id, productArr.product_id, productArr.price_amount, productArr.product_quantity], (err, result) => {
+                if (err) {
+                    // res.send(false)
+                    return console.log('FAILED TO INSERT CONTAINS TABLE', err);
+                }
+            })
 
         client.query('UPDATE Stocks SET quantity=$1 WHERE product_id = $2', [productArr.product_leftover, productArr.product_id], (err, result) => {
             if (err) {
@@ -305,12 +305,12 @@ app.post('/addOrder', (req, res) => {
                 return console.log('FAILED TO UPDATE STOCKS QUANTITY AFTER INSERT INTO CONTAIN', err);
             }
             console.log('updated')
-        })     
+        })
     }
 
     res.send(true);
     return console.log('ALL ORDERS ADDED SUCCESSFULLY')
-    
+
 })
 
 // ****************  Get all products ***************//
@@ -342,7 +342,7 @@ app.get('/getAllOrders', (req, res) => {
             res.send(false)
             return console.log('ERROR ADDING CONTAINS TO DATA[]', err)
         }
-            
+
         orderData.push(result.rows);
         res.send(orderData);
         return console.log('RETURNED ALL ORDER');
@@ -350,8 +350,9 @@ app.get('/getAllOrders', (req, res) => {
 })
 
 // ****************  Delete Payment ***************//
-app.delete('/deletePayment', (req, res) => {
-    client.query('DELETE FROM Card where username = $1 and card_number = $2', [req.body.username, req.body.card_number], (err, result) => {
+app.delete('/deletePayment/:username/:card_number', (req, res) => {
+    console.log(req.params)
+    client.query('DELETE FROM Card where username = $1 and card_number = $2', [req.params.username, req.params.card_number], (err, result) => {
         if (err) {
             res.send(false);
             return console.log('ERROR DELETING PAYMENT');
@@ -363,8 +364,8 @@ app.delete('/deletePayment', (req, res) => {
 
 
 // ****************  Delete Address ***************//
-app.delete('/deleteAddress', (req, res) => {
-    client.query('DELETE FROM Address where username = $1 and address = $2', [req.body.username, req.body.address], (err, result) => {
+app.delete('/deleteAddress/:username/:address', (req, res) => {
+    client.query('DELETE FROM Address where username = $1 and address = $2', [req.params.username, req.params.address], (err, result) => {
         if (err) {
             res.send(false);
             return console.log('ERROR DELETING ADDRESS');
@@ -376,7 +377,7 @@ app.delete('/deleteAddress', (req, res) => {
 
 
 
-app.listen(3000, function() {
+app.listen(3000, function () {
     console.log('Server is running on 3000');
     console.log(ID());
 

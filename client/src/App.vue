@@ -570,8 +570,6 @@ export default {
           " " +
           this.application.userInfo.primaryPayment.zipCode
       });
-
-      console.log(response.data);
       this.$bvModal.hide("userLogin");
       this.authenticated = true;
       this.onProduct = false;
@@ -592,7 +590,6 @@ export default {
           `http://localhost:3000/login/${this.application.userInfo.userName}/${this.application.userInfo.passWord}/${this.isAdmin}`
         )
         .then(response => {
-          console.log(response.data);
           this.UserLoggedIn = response.data;
           if (response.data[0] == null) {
             this.error = true;
@@ -630,7 +627,6 @@ export default {
               });
             });
 
-            console.log(this.application);
             this.authenticated = true;
             this.$bvModal.hide("userLogin");
           } else {
@@ -668,7 +664,6 @@ export default {
             this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[0].value;
             this.application.userInfo.firstName = name[0];
             this.application.userInfo.lastName = name[1];
-            console.log(this.application.userInfo);
             this.getOrders();
             this.authenticated = true;
             this.application.userInfo.authenticated = true;
@@ -684,7 +679,6 @@ export default {
         .get("http://localhost:3000/getAllOrders")
         .then(response => {
           this.application.userInfo.orders = [];
-          console.log(response.data);
           response.data[0].forEach(o => {
             if (o.username == this.application.userInfo.userName) {
               this.application.userInfo.orders.push({
@@ -696,21 +690,20 @@ export default {
                 card_pin: o.card_pin,
                 billing_address: o.billing_address,
                 products: []
-              })
+              });
             }
           });
-          this.application.userInfo.orders.forEach(order =>{
+          this.application.userInfo.orders.forEach(order => {
             response.data[1].forEach(p => {
-              if(p.order_id == order.order_id){
+              if (p.order_id == order.order_id) {
                 order.products.push({
                   product_id: p.product_id,
                   product_quantity: p.product_quantity,
                   price_amount: p.price_amount
-                })
+                });
               }
-            })
-          })
-          console.log(this.application.userInfo.orders);
+            });
+          });
         })
         .catch(error => {
           console.log(error);
@@ -764,8 +757,6 @@ export default {
     axios
       .get("http://localhost:3000/getAllProducts")
       .then(response => {
-        console.log(response.data);
-
         let p = response.data;
 
         p.forEach(prod => {

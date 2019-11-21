@@ -79,12 +79,12 @@
         </div>
       </div>
     </div>
-    <b-modal id="success" hide-footer title="Place Order Successfully">
-        You have successfully placed the order!
-    </b-modal>
-    <b-modal id="checkOutFail" hide-footer title="Error">
-        Please log in to check out!!
-    </b-modal>
+    <b-modal
+      id="success"
+      hide-footer
+      title="Place Order Successfully"
+    >You have successfully placed the order!</b-modal>
+    <b-modal id="checkOutFail" hide-footer title="Error">Please log in to check out!!</b-modal>
   </div>
 </template>
 
@@ -189,49 +189,51 @@ export default {
       this.$bvModal.show("confirm" + product.id);
     },
     async checkout() {
-      if(!this.application.userInfo.authenticated){
-        this.$bvModal.show('checkOutFail')
-      }
-      else{
-        if (this.application.cart.length == 0) {
+      if (!this.application.userInfo.authenticated) {
+        this.$bvModal.show("checkOutFail");
       } else {
-        console.log(this.application.userInfo.primaryAddress);
-        console.log(this.application.userInfo.primaryPayment);
-
-        let prods = []
-        this.application.cart.forEach(p => {
-          console.log(p);
-          prods.push({product_id: p.id, price_amount: parseInt(p.added)*parseFloat(p.price), product_quantity: parseInt(p.added), product_leftover: parseInt(p.quantity)})
-          console.log(prods[prods.length-1])
-        })
-
-        const response = await AuthenticationService.addOrder({
-          username: this.application.userInfo.userName,
-          delivery_address: this.application.userInfo.primaryAddress.address + ' ' + this.application.userInfo.primaryAddress.city + ' ' + this.application.userInfo.primaryAddress.state + ' ' + this.application.userInfo.primaryAddress.zipcode,
-          card_number: this.application.userInfo.primaryPayment.cardNumber,
-          card_pin: this.application.userInfo.primaryPayment.cardPin,
-          billing_address: this.application.userInfo.primaryPayment.billingAddres,
-          order_total: this.subTotal + this.tax,
-          products: prods,
-        });
-        console.log(response.data)
-        if (response.data) {
-         this.application.cart = [];
-         this.$parent.getOrders();
+        if (this.application.cart.length == 0) {
         } else {
-          
+          let prods = [];
+          this.application.cart.forEach(p => {
+            prods.push({
+              product_id: p.id,
+              price_amount: parseInt(p.added) * parseFloat(p.price),
+              product_quantity: parseInt(p.added),
+              product_leftover: parseInt(p.quantity)
+            });
+          });
+
+          const response = await AuthenticationService.addOrder({
+            username: this.application.userInfo.userName,
+            delivery_address:
+              this.application.userInfo.primaryAddress.address +
+              " " +
+              this.application.userInfo.primaryAddress.city +
+              " " +
+              this.application.userInfo.primaryAddress.state +
+              " " +
+              this.application.userInfo.primaryAddress.zipcode,
+            card_number: this.application.userInfo.primaryPayment.cardNumber,
+            card_pin: this.application.userInfo.primaryPayment.cardPin,
+            billing_address: this.application.userInfo.primaryPayment
+              .billingAddres,
+            order_total: this.subTotal + this.tax,
+            products: prods
+          });
+          if (response.data) {
+            this.application.cart = [];
+            this.$parent.getOrders();
+          } else {
+          }
         }
       }
-      }
-      
     }
   },
   computed: {
     subTotal: function() {
       let total = 0;
       this.application.cart.forEach(prod => {
-        console.log(prod.price);
-        console.log(prod.amountToBuy);
         total = total + prod.added * parseFloat(prod.price);
       });
       return total;

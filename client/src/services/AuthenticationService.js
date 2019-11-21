@@ -3,16 +3,16 @@ import Api from '@/services/Api'
 
 // api -> axios -> send data to the same route at backend
 export default {
-    register (credentials) {
+    register(credentials) {
         return Api().post('register', credentials)
     },
-    addAddress (credentials) {
+    addAddress(credentials) {
         return Api().post('addAddress', credentials)
     },
-    addPayment (credentials) {
+    addPayment(credentials) {
         return Api().post('addPayment', credentials)
     },
-    addStock (credentials) {
+    addStock(credentials) {
         return Api().put('updateQuantity', credentials)
     },
     addProduct(credentials) {
