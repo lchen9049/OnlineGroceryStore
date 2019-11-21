@@ -358,7 +358,14 @@ export default {
             `http://localhost:3000/deleteAddress/${this.application.userInfo.userName}/${address.address}`
           )
           .then(response => {
-            this.application.userInfo.primaryAddress = this.application.userInfo.address[0];
+            let index = 0;
+            for (let i = 0;i < this.application.userInfo.address.length;i++) {
+              if (this.application.userInfo.address[i].value.address == address.address) {
+                index = i;
+              }
+            }
+            this.application.userInfo.address.splice(index,1);
+            this.application.userInfo.primaryAddress = this.application.userInfo.address[0].value
           })
           .catch(error => {
             console.log(error);
@@ -381,10 +388,8 @@ export default {
                 index = i;
               }
             }
-            console.log(this.application.userInfo.creditCards);
             this.application.userInfo.creditCards.splice(index,1);
-            console.log(this.application.userInfo.creditCards);
-            this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[0]
+            this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[0].value
           })
           .catch(error => {
             console.log(error);
