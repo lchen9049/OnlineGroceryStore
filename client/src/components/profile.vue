@@ -33,7 +33,7 @@
           />
         </div>
         <div class="col mt-4">
-          <font-awesome-icon class="mr-5" size="2x" @click="deleteAddress();" icon="trash-alt" />
+          <font-awesome-icon class="mr-5" size="2x" @click="addAdress=true;deleteAddress();" icon="trash-alt" />
         </div>
       </div>
       <div class="row mt-4">
@@ -51,6 +51,9 @@
             @click="addAdress=false;$bvModal.show('addInfo');"
             icon="plus-circle"
           />
+        </div>
+        <div class="col mt-4">
+          <font-awesome-icon class="mr-5" size="2x" @click="addAdress=false;deletePayment();" icon="trash-alt" />
         </div>
       </div>
       <div class="row mt-5">
@@ -72,7 +75,7 @@
           Please add an address before deleting this.
         </div>
         <div v-else>
-          <div v-for="(payment, index) in application.userInfo.creditCards" :key="index">{{payment}}</div>
+          Please add a payment before deleting this.
         </div>
       </b-modal>
 
@@ -159,17 +162,17 @@
         <thead class="thead-dark">
           <tr>
             <th scope="col">Order ID</th>
-            <th scope="col">Date</th>
+            <th scope="col">Delivery Address</th>
             <th scope="col">Amount</th>
-            <th scope="col">Details</th>
+            <th scope="col">Status</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="order in application.userInfo.orders" :key="order.id">
-            <th scope="row">{{order.id}}</th>
-            <td>{{order.date}}</td>
-            <td>${{order.amount}}</td>
-            <td>{{order.details}}</td>
+            <th scope="row">{{order.order_id}}</th>
+            <td>{{order.delivery_address}}</td>
+            <td>${{order.order_total}}</td>
+            <td>{{order.order_status}}</td>
           </tr>
         </tbody>
       </table>
@@ -349,9 +352,21 @@ export default {
         const response = await AuthenticationService.deleteAddress({
           username: this.application.userInfo.userName,
           address: address.address,
-          city: address.city,
-          zipcode: address.zipCode,
-          state: address.state
+        }); 
+        console.log(response.data);
+      }
+    },
+    async deletePayment() {
+      let payment = this.application.userInfo.primaryPayment;
+      if (this.application.userInfo.creditCards.length == 1) {
+        this.$bvModal.show('delete');
+      } else {
+        //req.body.username, req.body.card_number
+        console.log(this.application.userInfo.userName)
+        console.log(payment.cardNumber)
+        const response = await AuthenticationService.deletePayment({
+          username: this.application.userInfo.userName,
+          card_number: payment.cardNumber,
         }); 
         console.log(response.data);
       }

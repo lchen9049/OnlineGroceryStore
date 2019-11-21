@@ -26,6 +26,9 @@ export default {
     },
     deleteAddress(credentials) {
         return Api().delete('deleteAddress', credentials)
+    },
+    deletePayment(credentials) {
+        return Api().delete('deletePayment', credentials)
     }
 }
 

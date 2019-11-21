@@ -669,9 +669,48 @@ export default {
             this.application.userInfo.firstName = name[0];
             this.application.userInfo.lastName = name[1];
             console.log(this.application.userInfo);
+            this.getOrders();
             this.authenticated = true;
+            this.application.userInfo.authenticated = true;
             this.$bvModal.hide("userLogin");
           }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    getOrders() {
+      axios
+        .get("http://localhost:3000/getAllOrders")
+        .then(response => {
+          this.application.userInfo.orders = [];
+          console.log(response.data);
+          response.data[0].forEach(o => {
+            if (o.username == this.application.userInfo.userName) {
+              this.application.userInfo.orders.push({
+                order_id: o.order_id,
+                order_status: o.order_status,
+                order_total: o.order_total,
+                delivery_address: o.delivery_address,
+                card_number: o.card_number,
+                card_pin: o.card_pin,
+                billing_address: o.billing_address,
+                products: []
+              })
+            }
+          });
+          this.application.userInfo.orders.forEach(order =>{
+            response.data[1].forEach(p => {
+              if(p.order_id == order.order_id){
+                order.products.push({
+                  product_id: p.product_id,
+                  product_quantity: p.product_quantity,
+                  price_amount: p.price_amount
+                })
+              }
+            })
+          })
+          console.log(this.application.userInfo.orders);
         })
         .catch(error => {
           console.log(error);

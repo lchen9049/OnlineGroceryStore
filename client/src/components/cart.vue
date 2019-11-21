@@ -79,6 +79,12 @@
         </div>
       </div>
     </div>
+    <b-modal id="success" hide-footer title="Place Order Successfully">
+        You have successfully placed the order!
+    </b-modal>
+    <b-modal id="checkOutFail" hide-footer title="Error">
+        Please log in to check out!!
+    </b-modal>
   </div>
 </template>
 
@@ -183,7 +189,11 @@ export default {
       this.$bvModal.show("confirm" + product.id);
     },
     async checkout() {
-      if (this.application.cart.length == 0) {
+      if(!this.application.userInfo.authenticated){
+        this.$bvModal.show('checkOutFail')
+      }
+      else{
+        if (this.application.cart.length == 0) {
       } else {
         console.log(this.application.userInfo.primaryAddress);
         console.log(this.application.userInfo.primaryPayment);
@@ -196,7 +206,7 @@ export default {
         })
 
         const response = await AuthenticationService.addOrder({
-          username: this.application.userInfo.username,
+          username: this.application.userInfo.userName,
           delivery_address: this.application.userInfo.primaryAddress.address + ' ' + this.application.userInfo.primaryAddress.city + ' ' + this.application.userInfo.primaryAddress.state + ' ' + this.application.userInfo.primaryAddress.zipcode,
           card_number: this.application.userInfo.primaryPayment.cardNumber,
           card_pin: this.application.userInfo.primaryPayment.cardPin,
@@ -206,11 +216,14 @@ export default {
         });
         console.log(response.data)
         if (response.data) {
-         
+         this.application.cart = [];
+         this.$parent.getOrders();
         } else {
           
         }
       }
+      }
+      
     }
   },
   computed: {
