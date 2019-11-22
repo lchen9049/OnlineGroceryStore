@@ -571,6 +571,41 @@ export default {
           this.application.userInfo.primaryPayment.zipCode
       });
       this.$bvModal.hide("userLogin");
+      this.application.userInfo.address.push({
+        value: {
+          address: this.application.userInfo.primaryAddress.address,
+          city: this.application.userInfo.primaryAddress.city,
+          zipcode: this.application.userInfo.primaryAddress.zipcode,
+          state: this.application.userInfo.primaryAddress.state
+        },
+        text:
+          this.application.userInfo.primaryAddress.address +
+          " " +
+          this.application.userInfo.primaryAddress.city +
+          " " +
+          this.application.userInfo.primaryAddress.state +
+          " " +
+          this.application.userInfo.primaryAddress.zipcode
+      });
+      this.application.userInfo.creditCards.push({
+        value: {
+          cardNumber: this.application.userInfo.primaryPayment.cardNumber,
+          cardPin: this.application.userInfo.primaryPayment.cardPin,
+          billingAddres:
+            this.application.userInfo.primaryPayment.billingAddress +
+            " " +
+            this.application.userInfo.primaryPayment.city +
+            " " +
+            this.application.userInfo.primaryPayment.state +
+            " " +
+            this.application.userInfo.primaryPayment.zipCode
+        },
+        text: this.application.userInfo.primaryPayment.cardNumber
+      });
+      this.application.userInfo.primaryAddress = this.application.userInfo.address[0].value;
+      this.application.userInfo.primaryPayment = this.application.userInfo.creditCards[0].value;
+      this.getOrders();
+      this.application.userInfo.authenticated = true;
       this.authenticated = true;
       this.onProduct = false;
       this.onCart = false;
