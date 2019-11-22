@@ -786,6 +786,21 @@ export default {
       this.isAdmin = false;
       this.authenticated = false;
       this.openProduct("fruit");
+      this.needRegistration = false;
+      this.application.userInfo = {
+        admin: false,
+        userName: null,
+        passWord: null,
+        authenticated: false,
+        firstName: null,
+        lastName: null,
+        phoneNumber: null,
+        primaryAddress: [],
+        primaryPayment: [],
+        orders: [],
+        address: [],
+        creditCards: []
+      };
     }
   },
   mounted() {
