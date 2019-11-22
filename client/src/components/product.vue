@@ -345,7 +345,6 @@ export default {
       console.log(response.data)
       if (response.data) {
         this.getAllProduct();
-        this.newProduct = null;
         this.$bvModal.hide("addNewProduct");
       } else {
       }
